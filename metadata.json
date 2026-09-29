@@ -1,0 +1,6 @@
+{
+  "name": "CASELINK",
+  "description": "เชื่อมโยงทุกข้อมูล ให้เห็นภาพรวมของคดี — แอปช่วยทนายและลูกความจัดระเบียบข้อมูลคดี Mind Map, Checklist และ Timeline",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
