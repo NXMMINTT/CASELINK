@@ -87,6 +87,7 @@ interface WireConnectingState {
   fromY: number;
   currentX: number;
   currentY: number;
+  color?: string;
 }
 
 interface ContextMenuState {
@@ -270,60 +271,96 @@ export const MindMapView: React.FC<MindMapViewProps> = ({ caseItem }) => {
         if (caseItem.x !== undefined && caseItem.y !== undefined) {
           return { x: caseItem.x, y: caseItem.y };
         }
-        return { x: 420, y: 160 };
+        return { x: 440, y: 100 };
       }
       if (type === 'person') {
         const item = caseItem.people.find((p) => p.id === id);
         if (item && item.x !== undefined && item.y !== undefined) {
           return { x: item.x, y: item.y };
         }
-        return { x: 80, y: 100 + index * 170 };
+        return { x: 80, y: 100 + index * 260 };
       }
       if (type === 'event') {
         const item = caseItem.events.find((e) => e.id === id);
         if (item && item.x !== undefined && item.y !== undefined) {
           return { x: item.x, y: item.y };
         }
-        return { x: 420, y: 380 + index * 210 };
+        return { x: 440, y: 530 + index * 320 };
       }
       if (type === 'document') {
         const item = caseItem.documents.find((d) => d.id === id);
         if (item && item.x !== undefined && item.y !== undefined) {
           return { x: item.x, y: item.y };
         }
-        return { x: 860, y: 120 + index * 220 };
+        return { x: 840, y: 100 + index * 270 };
       }
       if (type === 'law') {
         const item = (caseItem.legalLaws || []).find((l) => l.id === id);
         if (item && item.x !== undefined && item.y !== undefined) {
           return { x: item.x, y: item.y };
         }
-        return { x: 420, y: 920 + index * 260 };
+        return { x: 1260, y: 100 + index * 390 };
       }
       if (type === 'strategy') {
         const item = (caseItem.strategies || []).find((s) => s.id === id);
         if (item && item.x !== undefined && item.y !== undefined) {
           return { x: item.x, y: item.y };
         }
-        return { x: 80, y: 640 + index * 260 };
+        const pLen = caseItem.people.length || 2;
+        const startY = Math.max(100 + pLen * 260 + 40, 520);
+        return { x: 80, y: startY + index * 330 };
       }
       if (type === 'damages') {
         const item = (caseItem.damages || []).find((d) => d.id === id);
         if (item && item.x !== undefined && item.y !== undefined) {
           return { x: item.x, y: item.y };
         }
-        return { x: 860, y: 780 + index * 300 };
+        const dLen = caseItem.documents.length || 3;
+        return { x: 840, y: Math.max(100 + dLen * 270 + 40, 800) + index * 340 };
       }
       if (type === 'note') {
         const item = (caseItem.lawyerNotes || []).find((n) => n.id === id);
         if (item && item.x !== undefined && item.y !== undefined) {
           return { x: item.x, y: item.y };
         }
-        return { x: 420, y: 1220 + index * 220 };
+        const lLen = (caseItem.legalLaws || []).length || 1;
+        return { x: 1260, y: Math.max(100 + lLen * 390 + 40, 800) + index * 310 };
       }
       return { x: 100, y: 100 };
     },
     [caseItem, activeDragPos]
+  );
+
+  // Helper to get matching theme colors for any node (used for wire dragging and custom connections)
+  const getNodeColor = useCallback(
+    (nodeId: string, nodeType?: NodeCategory): { main: string; light: string; glow: string } => {
+      if (nodeType === 'person' || (!nodeType && caseItem.people.some((p) => p.id === nodeId))) {
+        return { main: '#10b981', light: '#34d399', glow: '#059669' }; // Emerald
+      }
+      if (nodeType === 'document' || (!nodeType && caseItem.documents.some((d) => d.id === nodeId))) {
+        return { main: '#f59e0b', light: '#fbbf24', glow: '#d97706' }; // Amber
+      }
+      if (nodeType === 'law' || (!nodeType && (caseItem.legalLaws || []).some((l) => l.id === nodeId))) {
+        return { main: '#a855f7', light: '#c084fc', glow: '#9333ea' }; // Purple
+      }
+      if (nodeType === 'strategy' || (!nodeType && (caseItem.strategies || []).some((s) => s.id === nodeId))) {
+        return { main: '#f43f5e', light: '#fb7185', glow: '#e11d48' }; // Rose
+      }
+      if (nodeType === 'damages' || (!nodeType && (caseItem.damages || []).some((d) => d.id === nodeId))) {
+        return { main: '#eab308', light: '#fde047', glow: '#ca8a04' }; // Yellow
+      }
+      if (nodeType === 'note' || (!nodeType && (caseItem.lawyerNotes || []).some((n) => n.id === nodeId))) {
+        return { main: '#f59e0b', light: '#fbbf24', glow: '#d97706' }; // Warm Amber
+      }
+      if (nodeType === 'event' || (!nodeType && caseItem.events.some((e) => e.id === nodeId))) {
+        return { main: '#06b6d4', light: '#22d3ee', glow: '#0891b2' }; // Cyan
+      }
+      if (nodeType === 'case' || nodeId === caseItem.id) {
+        return { main: '#6366f1', light: '#818cf8', glow: '#4f46e5' }; // Indigo
+      }
+      return { main: '#6366f1', light: '#818cf8', glow: '#4f46e5' };
+    },
+    [caseItem]
   );
 
   // Helper to find pin coordinates for custom connections with Left/Right pin resolution
@@ -517,7 +554,8 @@ export const MindMapView: React.FC<MindMapViewProps> = ({ caseItem }) => {
       if (targetEl) {
         const targetId = targetEl.getAttribute('data-node-id');
         if (targetId && targetId !== wireConnecting.fromNodeId) {
-          addCustomLink(caseItem.id, wireConnecting.fromNodeId, targetId);
+          const sourceColor = wireConnecting.color || getNodeColor(wireConnecting.fromNodeId, wireConnecting.fromType).main;
+          addCustomLink(caseItem.id, wireConnecting.fromNodeId, targetId, undefined, sourceColor);
         }
       }
       setWireConnecting(null);
@@ -652,7 +690,8 @@ export const MindMapView: React.FC<MindMapViewProps> = ({ caseItem }) => {
   // Connect two nodes freely
   const handleConnectNodes = (targetNodeId: string) => {
     if (wireConnecting && wireConnecting.fromNodeId !== targetNodeId) {
-      addCustomLink(caseItem.id, wireConnecting.fromNodeId, targetNodeId);
+      const sourceColor = wireConnecting.color || getNodeColor(wireConnecting.fromNodeId, wireConnecting.fromType).main;
+      addCustomLink(caseItem.id, wireConnecting.fromNodeId, targetNodeId, undefined, sourceColor);
       setWireConnecting(null);
       setHoveredTargetNodeId(null);
     }
@@ -766,6 +805,7 @@ export const MindMapView: React.FC<MindMapViewProps> = ({ caseItem }) => {
   ) => {
     e.stopPropagation();
     e.preventDefault();
+    const sourceTheme = getNodeColor(fromNodeId, fromType);
     setWireConnecting({
       fromNodeId,
       fromType,
@@ -773,6 +813,7 @@ export const MindMapView: React.FC<MindMapViewProps> = ({ caseItem }) => {
       fromY: pinY,
       currentX: pinX,
       currentY: pinY,
+      color: sourceTheme.main,
     });
   };
 
@@ -1354,7 +1395,7 @@ export const MindMapView: React.FC<MindMapViewProps> = ({ caseItem }) => {
 
             {/* Wire 2: Case -> People */}
             {caseItem.people.slice(0, 3).map((p, idx) => {
-              const linkKey = `case-person-${p.id}`;
+              const linkKey = `case-person-${p.id || idx}-${idx}`;
               if (caseItem.hiddenDefaultLinks?.includes(linkKey)) return null;
               const pos = getNodePos('person', p.id, idx);
               return renderBezierCurve(
@@ -1373,7 +1414,7 @@ export const MindMapView: React.FC<MindMapViewProps> = ({ caseItem }) => {
             {/* Wire 3: Sequential Events (ทำสัญญา -> ผิดสัญญา -> แจ้งเตือน -> ยื่นฟ้อง) */}
             {caseItem.events.map((ev, idx) => {
               if (idx < caseItem.events.length - 1) {
-                const linkKey = `ev-flow-${ev.id}`;
+                const linkKey = `ev-flow-${ev.id || idx}-${idx}`;
                 if (caseItem.hiddenDefaultLinks?.includes(linkKey)) return null;
                 const curPos = getNodePos('event', ev.id, idx);
                 const nextPos = getNodePos('event', caseItem.events[idx + 1].id, idx + 1);
@@ -1394,7 +1435,7 @@ export const MindMapView: React.FC<MindMapViewProps> = ({ caseItem }) => {
 
             {/* Wire 4: Events -> Related Documents */}
             {caseItem.documents.map((doc, idx) => {
-              const linkKey = `doc-wire-${doc.id}`;
+              const linkKey = `doc-wire-${doc.id || idx}-${idx}`;
               if (caseItem.hiddenDefaultLinks?.includes(linkKey)) return null;
               const docPos = getNodePos('document', doc.id, idx);
               const relatedEv = caseItem.events[idx % caseItem.events.length];
@@ -1414,7 +1455,7 @@ export const MindMapView: React.FC<MindMapViewProps> = ({ caseItem }) => {
 
             {/* Wire 5: Events -> Legal Laws */}
             {(caseItem.legalLaws || []).map((law, idx) => {
-              const linkKey = `law-wire-${law.id}`;
+              const linkKey = `law-wire-${law.id || idx}-${idx}`;
               if (caseItem.hiddenDefaultLinks?.includes(linkKey)) return null;
               const lawPos = getNodePos('law', law.id, idx);
               const targetEv = caseItem.events[1] || caseItem.events[0];
@@ -1434,7 +1475,7 @@ export const MindMapView: React.FC<MindMapViewProps> = ({ caseItem }) => {
 
             {/* Wire 6: Events -> Strategies */}
             {(caseItem.strategies || []).map((strat, idx) => {
-              const linkKey = `strat-wire-${strat.id}`;
+              const linkKey = `strat-wire-${strat.id || idx}-${idx}`;
               if (caseItem.hiddenDefaultLinks?.includes(linkKey)) return null;
               const stratPos = getNodePos('strategy', strat.id, idx);
               const targetEv = caseItem.events[idx % caseItem.events.length] || caseItem.events[0];
@@ -1454,7 +1495,7 @@ export const MindMapView: React.FC<MindMapViewProps> = ({ caseItem }) => {
 
             {/* Wire 7: Damages -> Case Root */}
             {(caseItem.damages || []).map((dmg, idx) => {
-              const linkKey = `dmg-wire-${dmg.id}`;
+              const linkKey = `dmg-wire-${dmg.id || idx}-${idx}`;
               if (caseItem.hiddenDefaultLinks?.includes(linkKey)) return null;
               const dmgPos = getNodePos('damages', dmg.id, idx);
               return renderBezierCurve(
@@ -1471,7 +1512,7 @@ export const MindMapView: React.FC<MindMapViewProps> = ({ caseItem }) => {
             })}
 
             {/* Wire 8: Custom Connections created by User (Freely connecting any nodes) */}
-            {caseItem.customLinks?.map((link) => {
+            {caseItem.customLinks?.map((link, idx) => {
               const defaultFrom = getPinCoordinate(link.fromId, 'out');
               const defaultTo = getPinCoordinate(link.toId, 'in');
               if (!defaultFrom || !defaultTo) return null;
@@ -1486,6 +1527,9 @@ export const MindMapView: React.FC<MindMapViewProps> = ({ caseItem }) => {
               const isSelected = selectedWireId === link.id;
               const isHovered = hoveredWireId === link.id;
 
+              const wireColor = link.color
+                ? { main: link.color, light: link.color, glow: link.color }
+                : getNodeColor(link.fromId);
               const dx = Math.max(Math.abs(toPos.x - fromPos.x) * 0.5, 40);
               const d =
                 lineStyle === 'orthogonal'
@@ -1494,7 +1538,7 @@ export const MindMapView: React.FC<MindMapViewProps> = ({ caseItem }) => {
 
               return (
                 <g
-                  key={`custom-link-${link.id}`}
+                  key={`custom-wire-${link.id || idx}-${idx}`}
                   className="pointer-events-auto"
                   onMouseEnter={() => setHoveredWireId(link.id)}
                   onMouseLeave={() => setHoveredWireId(null)}
@@ -1516,25 +1560,25 @@ export const MindMapView: React.FC<MindMapViewProps> = ({ caseItem }) => {
                   <path
                     d={d}
                     fill="none"
-                    stroke={isSelected ? '#f43f5e' : isHovered ? '#38bdf8' : '#0284c7'}
+                    stroke={isSelected ? '#f43f5e' : isHovered ? wireColor.light : wireColor.glow}
                     strokeWidth={isSelected ? '8' : isHovered ? '6' : '4'}
-                    strokeOpacity={isSelected ? '0.45' : isHovered ? '0.35' : '0.2'}
+                    strokeOpacity={isSelected ? '0.45' : isHovered ? '0.35' : '0.22'}
                   />
 
                   {/* Main wire cable */}
                   <path
                     d={d}
                     fill="none"
-                    stroke={isSelected ? '#fb7185' : isHovered ? '#7dd3fc' : '#38bdf8'}
+                    stroke={isSelected ? '#fb7185' : isHovered ? '#ffffff' : wireColor.main}
                     strokeWidth={isSelected ? '3.5' : isHovered ? '3' : '2.5'}
                     strokeLinecap="round"
                   />
 
                   {/* End connection pins */}
-                  <circle cx={fromPos.x} cy={fromPos.y} r="4.5" fill={isSelected ? '#fb7185' : '#38bdf8'} />
-                  <circle cx={toPos.x} cy={toPos.y} r="4.5" fill={isSelected ? '#fb7185' : '#38bdf8'} />
+                  <circle cx={fromPos.x} cy={fromPos.y} r="4.5" fill={isSelected ? '#fb7185' : wireColor.main} />
+                  <circle cx={toPos.x} cy={toPos.y} r="4.5" fill={isSelected ? '#fb7185' : wireColor.main} />
 
-                  {/* STABLE Delete button at midpoint - ABSOLUTELY NO CSS transform scale to prevent jitter/jump bug */}
+                  {/* STABLE Delete button at midpoint */}
                   <g
                     transform={`translate(${midX}, ${midY})`}
                     onMouseDown={(e) => e.stopPropagation()}
@@ -1551,11 +1595,11 @@ export const MindMapView: React.FC<MindMapViewProps> = ({ caseItem }) => {
                     {/* Generous invisible touch target */}
                     <circle r="18" fill="transparent" />
 
-                    {/* Button circle background with SVG hover color */}
+                    {/* Button circle background with source node color */}
                     <circle
                       r="11"
                       fill={isHovered || isSelected ? '#e11d48' : '#090d16'}
-                      stroke={isHovered || isSelected ? '#ffffff' : '#38bdf8'}
+                      stroke={isHovered || isSelected ? '#ffffff' : wireColor.main}
                       strokeWidth="2"
                     />
 
@@ -1576,16 +1620,20 @@ export const MindMapView: React.FC<MindMapViewProps> = ({ caseItem }) => {
             })}
 
             {/* Live Interactive Wire when User drags from a Pin */}
-            {wireConnecting &&
-              renderBezierCurve(
+            {wireConnecting && (() => {
+              const activeColor = wireConnecting.color
+                ? { main: wireConnecting.color, light: wireConnecting.color, glow: wireConnecting.color }
+                : getNodeColor(wireConnecting.fromNodeId, wireConnecting.fromType);
+              return renderBezierCurve(
                 wireConnecting.fromX,
                 wireConnecting.fromY,
                 wireConnecting.currentX,
                 wireConnecting.currentY,
-                '#38bdf8',
+                activeColor.main,
                 'active-drag-wire',
                 'horizontal'
-              )}
+              );
+            })()}
           </g>
         </svg>
 
@@ -1640,12 +1688,15 @@ export const MindMapView: React.FC<MindMapViewProps> = ({ caseItem }) => {
           onMouseDown={(e) => handleNodeMouseDown(e, 'case', caseItem.id, casePos)}
           onMouseUp={() => handleNodeMouseUp(caseItem.id)}
           onClick={(e) => handleNodeClick(e, caseItem.id)}
-          style={{ transform: `translate(${casePos.x}px, ${casePos.y}px)` }}
+          style={{
+            transform: `translate(${casePos.x}px, ${casePos.y}px)`,
+            boxShadow: wireConnecting && wireConnecting.fromNodeId !== caseItem.id ? `0 0 0 3.5px ${wireConnecting.color || '#38bdf8'}` : undefined,
+          }}
           className={`blueprint-node absolute w-[270px] rounded-xl bg-slate-900/95 border-2 shadow-2xl transition-shadow duration-150 cursor-grab active:cursor-grabbing ${
             selectedNode?.type === 'case'
               ? 'border-indigo-400 ring-4 ring-indigo-500/20'
               : 'border-indigo-600/70 hover:border-indigo-400'
-          } ${wireConnecting && wireConnecting.fromNodeId !== caseItem.id ? 'ring-2 ring-sky-400/80 bg-slate-900' : ''}`}
+          }`}
         >
           {/* Node Header */}
           <div className="px-3.5 py-2.5 bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900 rounded-t-lg border-b border-indigo-700/60 flex items-center justify-between">
@@ -1728,17 +1779,20 @@ export const MindMapView: React.FC<MindMapViewProps> = ({ caseItem }) => {
 
           return (
             <div
-              key={person.id}
+              key={`node-person-${person.id || index}-${index}`}
               data-node-id={person.id}
               onMouseDown={(e) => handleNodeMouseDown(e, 'person', person.id, pos)}
               onMouseUp={() => handleNodeMouseUp(person.id)}
               onClick={(e) => handleNodeClick(e, person.id)}
-              style={{ transform: `translate(${pos.x}px, ${pos.y}px)` }}
+              style={{
+                transform: `translate(${pos.x}px, ${pos.y}px)`,
+                boxShadow: isTargetHighlight ? `0 0 0 3.5px ${wireConnecting?.color || '#38bdf8'}` : undefined,
+              }}
               className={`blueprint-node absolute w-[230px] rounded-xl bg-slate-900/95 border shadow-xl transition-shadow cursor-grab active:cursor-grabbing ${
                 isSelected
                   ? 'border-emerald-400 ring-4 ring-emerald-500/20'
                   : 'border-emerald-700/60 hover:border-emerald-400'
-              } ${isTargetHighlight ? 'ring-2 ring-sky-400/80' : ''}`}
+              }`}
             >
               <div className="px-3 py-2 bg-gradient-to-r from-emerald-900/90 to-slate-900 rounded-t-lg border-b border-emerald-700/60 flex items-center justify-between">
                 <div className="flex items-center space-x-1.5">
@@ -1816,17 +1870,20 @@ export const MindMapView: React.FC<MindMapViewProps> = ({ caseItem }) => {
 
           return (
             <div
-              key={ev.id}
+              key={`node-event-${ev.id || index}-${index}`}
               data-node-id={ev.id}
               onMouseDown={(e) => handleNodeMouseDown(e, 'event', ev.id, pos)}
               onMouseUp={() => handleNodeMouseUp(ev.id)}
               onClick={(e) => handleNodeClick(e, ev.id)}
-              style={{ transform: `translate(${pos.x}px, ${pos.y}px)` }}
+              style={{
+                transform: `translate(${pos.x}px, ${pos.y}px)`,
+                boxShadow: isTargetHighlight ? `0 0 0 3.5px ${wireConnecting?.color || '#38bdf8'}` : undefined,
+              }}
               className={`blueprint-node absolute w-[270px] rounded-xl bg-slate-900/95 border shadow-xl transition-shadow cursor-grab active:cursor-grabbing ${
                 isSelected
                   ? 'border-cyan-400 ring-4 ring-cyan-500/20'
                   : 'border-cyan-700/60 hover:border-cyan-400'
-              } ${isTargetHighlight ? 'ring-2 ring-sky-400/80' : ''}`}
+              }`}
             >
               <div className="px-3 py-2 bg-gradient-to-r from-cyan-950 via-blue-900 to-slate-900 rounded-t-lg border-b border-cyan-700/60 flex items-center justify-between">
                 <div className="flex items-center space-x-1.5">
@@ -1936,17 +1993,20 @@ export const MindMapView: React.FC<MindMapViewProps> = ({ caseItem }) => {
 
           return (
             <div
-              key={doc.id}
+              key={`node-doc-${doc.id || index}-${index}`}
               data-node-id={doc.id}
               onMouseDown={(e) => handleNodeMouseDown(e, 'document', doc.id, pos)}
               onMouseUp={() => handleNodeMouseUp(doc.id)}
               onClick={(e) => handleNodeClick(e, doc.id)}
-              style={{ transform: `translate(${pos.x}px, ${pos.y}px)` }}
+              style={{
+                transform: `translate(${pos.x}px, ${pos.y}px)`,
+                boxShadow: isTargetHighlight ? `0 0 0 3.5px ${wireConnecting?.color || '#38bdf8'}` : undefined,
+              }}
               className={`blueprint-node absolute w-[270px] rounded-xl bg-slate-900/95 border shadow-xl transition-shadow cursor-grab active:cursor-grabbing ${
                 isSelected
                   ? 'border-amber-400 ring-4 ring-amber-500/20'
                   : 'border-amber-700/60 hover:border-amber-400'
-              } ${isTargetHighlight ? 'ring-2 ring-sky-400/80' : ''}`}
+              }`}
             >
               <div className="px-3 py-2 bg-gradient-to-r from-amber-950 via-amber-900 to-slate-900 rounded-t-lg border-b border-amber-700/60 flex items-center justify-between">
                 <div className="flex items-center space-x-1.5">
@@ -2087,17 +2147,20 @@ export const MindMapView: React.FC<MindMapViewProps> = ({ caseItem }) => {
 
           return (
             <div
-              key={law.id}
+              key={`node-law-${law.id || index}-${index}`}
               data-node-id={law.id}
               onMouseDown={(e) => handleNodeMouseDown(e, 'law', law.id, pos)}
               onMouseUp={() => handleNodeMouseUp(law.id)}
               onClick={(e) => handleNodeClick(e, law.id)}
-              style={{ transform: `translate(${pos.x}px, ${pos.y}px)` }}
+              style={{
+                transform: `translate(${pos.x}px, ${pos.y}px)`,
+                boxShadow: isTargetHighlight ? `0 0 0 3.5px ${wireConnecting?.color || '#38bdf8'}` : undefined,
+              }}
               className={`blueprint-node absolute w-[300px] rounded-xl bg-slate-900/95 border shadow-xl transition-shadow cursor-grab active:cursor-grabbing ${
                 isSelected
                   ? 'border-purple-400 ring-4 ring-purple-500/20'
                   : 'border-purple-700/60 hover:border-purple-400'
-              } ${isTargetHighlight ? 'ring-2 ring-sky-400/80' : ''}`}
+              }`}
             >
               <div className="px-3.5 py-2.5 bg-gradient-to-r from-purple-950 via-purple-900 to-slate-900 rounded-t-lg border-b border-purple-700/60 flex items-center justify-between">
                 <div className="flex items-center space-x-1.5">
@@ -2216,17 +2279,20 @@ export const MindMapView: React.FC<MindMapViewProps> = ({ caseItem }) => {
 
           return (
             <div
-              key={strat.id}
+              key={`node-strat-${strat.id || index}-${index}`}
               data-node-id={strat.id}
               onMouseDown={(e) => handleNodeMouseDown(e, 'strategy', strat.id, pos)}
               onMouseUp={() => handleNodeMouseUp(strat.id)}
               onClick={(e) => handleNodeClick(e, strat.id)}
-              style={{ transform: `translate(${pos.x}px, ${pos.y}px)` }}
+              style={{
+                transform: `translate(${pos.x}px, ${pos.y}px)`,
+                boxShadow: isTargetHighlight ? `0 0 0 3.5px ${wireConnecting?.color || '#38bdf8'}` : undefined,
+              }}
               className={`blueprint-node absolute w-[290px] rounded-xl bg-slate-900/95 border shadow-xl transition-shadow cursor-grab active:cursor-grabbing ${
                 isSelected
                   ? 'border-rose-400 ring-4 ring-rose-500/20'
                   : 'border-rose-700/60 hover:border-rose-400'
-              } ${isTargetHighlight ? 'ring-2 ring-sky-400/80' : ''}`}
+              }`}
             >
               <div className="px-3.5 py-2.5 bg-gradient-to-r from-rose-950 via-rose-900 to-slate-900 rounded-t-lg border-b border-rose-700/60 flex items-center justify-between">
                 <div className="flex items-center space-x-1.5">
@@ -2340,17 +2406,20 @@ export const MindMapView: React.FC<MindMapViewProps> = ({ caseItem }) => {
 
           return (
             <div
-              key={dmg.id}
+              key={`node-dmg-${dmg.id || index}-${index}`}
               data-node-id={dmg.id}
               onMouseDown={(e) => handleNodeMouseDown(e, 'damages', dmg.id, pos)}
               onMouseUp={() => handleNodeMouseUp(dmg.id)}
               onClick={(e) => handleNodeClick(e, dmg.id)}
-              style={{ transform: `translate(${pos.x}px, ${pos.y}px)` }}
+              style={{
+                transform: `translate(${pos.x}px, ${pos.y}px)`,
+                boxShadow: isTargetHighlight ? `0 0 0 3.5px ${wireConnecting?.color || '#38bdf8'}` : undefined,
+              }}
               className={`blueprint-node absolute w-[310px] rounded-xl bg-slate-900/95 border shadow-xl transition-shadow cursor-grab active:cursor-grabbing ${
                 isSelected
                   ? 'border-yellow-400 ring-4 ring-yellow-500/20'
                   : 'border-yellow-700/60 hover:border-yellow-400'
-              } ${isTargetHighlight ? 'ring-2 ring-sky-400/80' : ''}`}
+              }`}
             >
               <div className="px-3.5 py-2.5 bg-gradient-to-r from-yellow-950 via-amber-900 to-slate-900 rounded-t-lg border-b border-yellow-700/60 flex items-center justify-between">
                 <div className="flex items-center space-x-1.5">
@@ -2515,17 +2584,20 @@ export const MindMapView: React.FC<MindMapViewProps> = ({ caseItem }) => {
 
           return (
             <div
-              key={note.id}
+              key={`node-note-${note.id || index}-${index}`}
               data-node-id={note.id}
               onMouseDown={(e) => handleNodeMouseDown(e, 'note', note.id, pos)}
               onMouseUp={() => handleNodeMouseUp(note.id)}
               onClick={(e) => handleNodeClick(e, note.id)}
-              style={{ transform: `translate(${pos.x}px, ${pos.y}px)` }}
+              style={{
+                transform: `translate(${pos.x}px, ${pos.y}px)`,
+                boxShadow: isTargetHighlight ? `0 0 0 3.5px ${wireConnecting?.color || '#38bdf8'}` : undefined,
+              }}
               className={`blueprint-node absolute w-[290px] rounded-xl bg-slate-950/90 border-2 shadow-2xl transition-shadow cursor-grab active:cursor-grabbing ${
                 isSelected
                   ? 'border-amber-400 ring-4 ring-amber-500/20'
                   : 'border-amber-500/50 hover:border-amber-400'
-              } ${isTargetHighlight ? 'ring-2 ring-sky-400/80' : ''}`}
+              }`}
             >
               <div className="px-3 py-2 bg-gradient-to-r from-amber-950/80 to-slate-900 rounded-t-lg border-b border-amber-700/50 flex items-center justify-between">
                 <div className="flex items-center space-x-1.5">
@@ -3295,20 +3367,31 @@ export const MindMapView: React.FC<MindMapViewProps> = ({ caseItem }) => {
       )}
 
       {/* 6.5 ACTIVE WIRE CONNECTING BANNER */}
-      {wireConnecting && (
-        <div className="absolute top-14 left-1/2 -translate-x-1/2 z-40 bg-sky-950/95 border border-sky-500/80 px-4 py-2 rounded-full backdrop-blur-md text-xs text-sky-200 shadow-2xl flex items-center space-x-3 pointer-events-auto animate-pulse">
-          <Link2 className="w-4 h-4 text-sky-400" />
-          <span className="font-semibold text-xs">
-            กำลังต่อสายเชื่อมโยง: คลิกหรือปล่อยเมาส์บนบล็อกเป้าหมายเพื่อเชื่อมต่อ
-          </span>
-          <button
-            onClick={() => setWireConnecting(null)}
-            className="px-2 py-0.5 rounded-full bg-slate-900/80 hover:bg-rose-950 text-slate-300 hover:text-rose-300 border border-slate-700 text-[10px] cursor-pointer"
+      {wireConnecting && (() => {
+        const sourceColor = wireConnecting.color || getNodeColor(wireConnecting.fromNodeId, wireConnecting.fromType).main;
+        return (
+          <div
+            className="absolute top-14 left-1/2 -translate-x-1/2 z-40 px-4 py-2 rounded-full backdrop-blur-md text-xs shadow-2xl flex items-center space-x-3 pointer-events-auto border animate-pulse"
+            style={{
+              backgroundColor: 'rgba(15, 23, 42, 0.95)',
+              borderColor: sourceColor,
+              color: '#ffffff',
+            }}
           >
-            ✕ ยกเลิก (Esc)
-          </button>
-        </div>
-      )}
+            <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: sourceColor }} />
+            <Link2 className="w-4 h-4" style={{ color: sourceColor }} />
+            <span className="font-semibold text-xs text-slate-100">
+              กำลังลากเส้นเชื่อมโยง: คลิกหรือปล่อยเมาส์บนบล็อกเป้าหมายเพื่อเชื่อมต่อ
+            </span>
+            <button
+              onClick={() => setWireConnecting(null)}
+              className="px-2 py-0.5 rounded-full bg-slate-900/80 hover:bg-rose-950 text-slate-300 hover:text-rose-300 border border-slate-700 text-[10px] cursor-pointer"
+            >
+              ✕ ยกเลิก (Esc)
+            </button>
+          </div>
+        );
+      })()}
 
       {/* 7. FULLSCREEN FLOATING HUD BANNER */}
       {isFullscreen && (

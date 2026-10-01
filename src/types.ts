@@ -180,7 +180,7 @@ export interface CaseItem {
   deadlines: DeadlineItem[];
   messages: CaseMessage[];
   nextActions: string[];
-  customLinks?: Array<{ id: string; fromId: string; toId: string; label?: string }>;
+  customLinks?: Array<{ id: string; fromId: string; toId: string; label?: string; color?: string }>;
   hiddenDefaultLinks?: string[]; // IDs of default links hidden/deleted by user
   legalLaws?: LegalLawNode[];
   strategies?: StrategyNode[];

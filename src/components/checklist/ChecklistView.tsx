@@ -21,7 +21,7 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
   caseItem,
   onOpenUpload,
 }) => {
-  const { toggleChecklistStatus, addChecklistItem, currentUser } = useApp();
+  const { toggleChecklistStatus, updateChecklistStatus, addChecklistItem, currentUser } = useApp();
 
   const [filterType, setFilterType] = useState<'all' | 'client' | 'lawyer'>('all');
   const [showAddModal, setShowAddModal] = useState(false);
@@ -65,6 +65,39 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
           </span>
         );
     }
+  };
+
+  const renderStatusSelector = (item: ChecklistItem) => {
+    if (currentUser.role !== 'lawyer') {
+      return getStatusBadge(item.status);
+    }
+
+    return (
+      <div className="relative inline-flex items-center">
+        <select
+          value={item.status}
+          onChange={(e) => updateChecklistStatus(caseItem.id, item.id, e.target.value as DocStatus)}
+          className={`text-xs font-semibold px-2.5 py-1 rounded-full border cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition appearance-none pr-6 ${
+            item.status === 'ตรวจแล้ว'
+              ? 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100'
+              : item.status === 'กำลังตรวจ'
+              ? 'bg-amber-50 text-amber-800 border-amber-300 hover:bg-amber-100'
+              : item.status === 'ส่งแล้ว'
+              ? 'bg-sky-50 text-sky-800 border-sky-300 hover:bg-sky-100'
+              : 'bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200'
+          }`}
+          title="คลิกเพื่อเปลี่ยนสถานะ"
+        >
+          <option value="ยังไม่ได้ส่ง">⚪ ยังไม่ได้ส่ง</option>
+          <option value="ส่งแล้ว">🔵 ส่งแล้ว</option>
+          <option value="กำลังตรวจ">🟡 กำลังตรวจ</option>
+          <option value="ตรวจแล้ว">🟢 ตรวจแล้ว</option>
+        </select>
+        <span className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-[9px] text-slate-500">
+          ▼
+        </span>
+      </div>
+    );
   };
 
   const handleCreateItem = (e: React.FormEvent) => {
@@ -191,7 +224,7 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
                   </div>
 
                   <div className="flex items-center space-x-2">
-                    {getStatusBadge(item.status)}
+                    {renderStatusSelector(item)}
                     {item.status === 'ยังไม่ได้ส่ง' && onOpenUpload && (
                       <button
                         onClick={() => onOpenUpload(item.title)}
@@ -248,7 +281,7 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
                     </span>
                   </div>
 
-                  <div>{getStatusBadge(item.status)}</div>
+                  <div>{renderStatusSelector(item)}</div>
                 </div>
               ))}
             </div>

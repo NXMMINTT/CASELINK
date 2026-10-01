@@ -6,6 +6,7 @@ import {
   CaseEvent,
   CaseDocument,
   ChecklistItem,
+  DocStatus,
   DeadlineItem,
   CaseMessage,
   Person,
@@ -76,6 +77,9 @@ interface AppContextType {
   updateDocStatus: (caseId: string, docId: string, status: CaseDocument['status']) => void;
   addChecklistItem: (caseId: string, item: Omit<ChecklistItem, 'id'>) => void;
   toggleChecklistStatus: (caseId: string, itemId: string) => void;
+  updateChecklistStatus: (caseId: string, itemId: string, status: DocStatus) => void;
+  addDeadline: (caseId: string, deadline: Omit<DeadlineItem, 'id' | 'caseId' | 'caseTitle'>) => void;
+  deleteDeadline: (caseId: string, deadlineId: string) => void;
   addPerson: (caseId: string, person: Omit<Person, 'id'>) => void;
   deletePerson: (caseId: string, personId: string) => void;
   updateNodePosition: (
@@ -103,7 +107,7 @@ interface AppContextType {
     id: string,
     imageUrl?: string
   ) => void;
-  addCustomLink: (caseId: string, fromId: string, toId: string, label?: string) => void;
+  addCustomLink: (caseId: string, fromId: string, toId: string, label?: string, color?: string) => void;
   removeCustomLink: (caseId: string, linkId: string) => void;
   hideDefaultLink: (caseId: string, linkId: string) => void;
   restoreAllDefaultLinks: (caseId: string) => void;
@@ -127,6 +131,42 @@ const LOCAL_STORAGE_KEY_CASES = 'caselink_cases_v2';
 const LOCAL_STORAGE_KEY_DELETED_CASES = 'caselink_deleted_cases_v2';
 const LOCAL_STORAGE_KEY_USER = 'caselink_user_v2';
 
+let idCounter = 0;
+export const generateUniqueId = (prefix: string = 'id'): string => {
+  idCounter += 1;
+  const rand = Math.random().toString(36).substring(2, 8);
+  return `${prefix}-${Date.now()}-${idCounter}-${rand}`;
+};
+
+function deduplicateAndEnsureUnique<T extends { id: string }>(items: T[], prefix: string): T[] {
+  if (!items || !Array.isArray(items)) return [];
+  const seenFp = new Set<string>();
+  const seenIds = new Set<string>();
+  const result: T[] = [];
+
+  for (let idx = 0; idx < items.length; idx++) {
+    const item = items[idx];
+    if (!item) continue;
+    // Fingerprint based on content to prevent duplicate nodes
+    const { id, x, y, ...rest } = item as any;
+    const fp = JSON.stringify(rest);
+    if (seenFp.has(fp)) {
+      // Skip exact duplicate entity
+      continue;
+    }
+    seenFp.add(fp);
+
+    let finalId = item.id;
+    if (!finalId || seenIds.has(finalId)) {
+      finalId = generateUniqueId(`${prefix}-${idx}`);
+    }
+    seenIds.add(finalId);
+    result.push({ ...item, id: finalId });
+  }
+
+  return result;
+}
+
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<UserProfile>(() => {
     try {
@@ -145,38 +185,64 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const parsed: CaseItem[] = JSON.parse(saved);
         return parsed.map((c) => {
           const init = INITIAL_CASES.find((ic) => ic.id === c.id);
+          const sanitizedEvents = deduplicateAndEnsureUnique(c.events || [], 'ev');
+          const sanitizedPeople = deduplicateAndEnsureUnique(c.people || [], 'p');
+          const sanitizedDocs = deduplicateAndEnsureUnique(c.documents || [], 'doc');
+          const sanitizedLaws = deduplicateAndEnsureUnique(c.legalLaws || init?.legalLaws || [], 'law');
+          const sanitizedStrats = deduplicateAndEnsureUnique(c.strategies || init?.strategies || [], 'strat');
+          const sanitizedDmgs = deduplicateAndEnsureUnique(c.damages || init?.damages || [], 'dmg');
+          const sanitizedNotes = deduplicateAndEnsureUnique(c.lawyerNotes || init?.lawyerNotes || [], 'note');
+          const sanitizedChecklist = deduplicateAndEnsureUnique(c.checklist || init?.checklist || [], 'chk');
+          const sanitizedDeadlines = deduplicateAndEnsureUnique(c.deadlines || init?.deadlines || [], 'dl');
+
+          const rawLinks = c.customLinks || init?.customLinks || [];
+          const seenLinkIds = new Set<string>();
+          const sanitizedLinks = rawLinks
+            .filter((link, i, arr) => arr.findIndex((l) => l.fromId === link.fromId && l.toId === link.toId) === i)
+            .map((link, idx) => {
+              let linkId = link.id;
+              if (!linkId || seenLinkIds.has(linkId)) {
+                linkId = generateUniqueId(`link-${idx}`);
+              }
+              seenLinkIds.add(linkId);
+              return { ...link, id: linkId };
+            });
+
           return {
             ...c,
             imageUrl: c.imageUrl || init?.imageUrl,
-            events: (c.events || []).map((ev) => ({
+            events: sanitizedEvents.map((ev) => ({
               ...ev,
               imageUrl: ev.imageUrl || init?.events?.find((e) => e.id === ev.id)?.imageUrl,
             })),
-            people: (c.people || []).map((p) => ({
+            people: sanitizedPeople.map((p) => ({
               ...p,
               imageUrl: p.imageUrl || init?.people?.find((ip) => ip.id === p.id)?.imageUrl,
             })),
-            documents: (c.documents || []).map((d) => ({
+            documents: sanitizedDocs.map((d) => ({
               ...d,
               imageUrl: d.imageUrl || init?.documents?.find((idoc) => idoc.id === d.id)?.imageUrl,
             })),
-            legalLaws: (c.legalLaws || init?.legalLaws || []).map((l) => ({
+            legalLaws: sanitizedLaws.map((l) => ({
               ...l,
               imageUrl: l.imageUrl || init?.legalLaws?.find((il) => il.id === l.id)?.imageUrl,
             })),
-            strategies: (c.strategies || init?.strategies || []).map((s) => ({
+            strategies: sanitizedStrats.map((s) => ({
               ...s,
               imageUrl: s.imageUrl || init?.strategies?.find((is) => is.id === s.id)?.imageUrl,
             })),
-            damages: (c.damages || init?.damages || []).map((dm) => ({
+            damages: sanitizedDmgs.map((dm) => ({
               ...dm,
               imageUrl: dm.imageUrl || init?.damages?.find((idm) => idm.id === dm.id)?.imageUrl,
             })),
-            lawyerNotes: (c.lawyerNotes || init?.lawyerNotes || []).map((n) => ({
+            lawyerNotes: sanitizedNotes.map((n) => ({
               ...n,
               imageUrl: n.imageUrl || init?.lawyerNotes?.find((inote) => inote.id === n.id)?.imageUrl,
             })),
-            customLinks: c.customLinks || init?.customLinks || [],
+            checklist: sanitizedChecklist,
+            deadlines: sanitizedDeadlines,
+            customLinks: sanitizedLinks,
+            hiddenDefaultLinks: Array.from(new Set(c.hiddenDefaultLinks || [])),
           };
         });
       }
@@ -259,7 +325,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const currentCase = cases.find((c) => c.id === selectedCaseId) || cases[0];
 
   const createCase = (newCaseData: Partial<CaseItem>): string => {
-    const newId = `case-${Date.now()}`;
+    const newId = generateUniqueId('case');
     const newCase: CaseItem = {
       id: newId,
       title: newCaseData.title || 'คดีใหม่',
@@ -271,17 +337,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       events: newCaseData.events || [],
       documents: newCaseData.documents || [],
       people: newCaseData.people || [
-        { id: `p-${Date.now()}-1`, name: newCaseData.clientName || 'ลูกความ', role: 'ลูกความ / โจทก์', relatedEventIds: [] }
+        { id: generateUniqueId('p'), name: newCaseData.clientName || 'ลูกความ', role: 'ลูกความ / โจทก์', relatedEventIds: [] }
       ],
       checklist: newCaseData.checklist || [
-        { id: `chk-${Date.now()}-1`, title: 'บัตรประชาชน', category: 'client', status: 'ยังไม่ได้ส่ง' },
-        { id: `chk-${Date.now()}-2`, title: 'สัญญาว่าจ้าง/เอกสารที่เกี่ยวข้อง', category: 'client', status: 'ยังไม่ได้ส่ง' },
-        { id: `chk-${Date.now()}-3`, title: 'ตรวจข้อเท็จจริงเบื้องต้น', category: 'lawyer', status: 'กำลังตรวจ' },
+        { id: generateUniqueId('chk'), title: 'บัตรประชาชน', category: 'client', status: 'ยังไม่ได้ส่ง' },
+        { id: generateUniqueId('chk'), title: 'สัญญาว่าจ้าง/เอกสารที่เกี่ยวข้อง', category: 'client', status: 'ยังไม่ได้ส่ง' },
+        { id: generateUniqueId('chk'), title: 'ตรวจข้อเท็จจริงเบื้องต้น', category: 'lawyer', status: 'กำลังตรวจ' },
       ],
       deadlines: newCaseData.deadlines || [],
       messages: [
         {
-          id: `msg-${Date.now()}`,
+          id: generateUniqueId('msg'),
           sender: 'ทนายสมชาย',
           role: 'lawyer',
           text: 'ยินดีต้อนรับสู่ CASELINK ทางเราเปิดแฟ้มคดีให้เรียบร้อยแล้วครับ หากมีเอกสารสามารถส่งในระบบได้ทันที',
@@ -490,7 +556,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const addEvent = (caseId: string, eventData: Omit<CaseEvent, 'id'>) => {
     const newEvent: CaseEvent = {
       ...eventData,
-      id: `ev-${Date.now()}`,
+      id: generateUniqueId('ev'),
     };
     setCases((prev) =>
       prev.map((c) => {
@@ -536,7 +602,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const addDocument = (caseId: string, docData: Omit<CaseDocument, 'id'>) => {
     const newDoc: CaseDocument = {
       ...docData,
-      id: `doc-${Date.now()}`,
+      id: generateUniqueId('doc'),
     };
     setCases((prev) =>
       prev.map((c) => {
@@ -555,9 +621,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setCases((prev) =>
       prev.map((c) => {
         if (c.id === caseId) {
+          const targetDoc = c.documents.find((d) => d.id === docId);
+          const updatedDocs = c.documents.map((d) => (d.id === docId ? { ...d, status } : d));
+          // Synchronize matching checklist item if it exists with same or similar title
+          const updatedChecklist = targetDoc
+            ? c.checklist.map((item) => {
+                if (
+                  item.title.trim().toLowerCase() === targetDoc.title.trim().toLowerCase() ||
+                  item.title.includes(targetDoc.title) ||
+                  targetDoc.title.includes(item.title)
+                ) {
+                  return { ...item, status };
+                }
+                return item;
+              })
+            : c.checklist;
           return {
             ...c,
-            documents: c.documents.map((d) => (d.id === docId ? { ...d, status } : d)),
+            documents: updatedDocs,
+            checklist: updatedChecklist,
           };
         }
         return c;
@@ -568,7 +650,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const addChecklistItem = (caseId: string, itemData: Omit<ChecklistItem, 'id'>) => {
     const newItem: ChecklistItem = {
       ...itemData,
-      id: `chk-${Date.now()}`,
+      id: generateUniqueId('chk'),
     };
     setCases((prev) =>
       prev.map((c) => {
@@ -583,20 +665,105 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     );
   };
 
+  const updateChecklistStatus = (caseId: string, itemId: string, status: DocStatus) => {
+    setCases((prev) =>
+      prev.map((c) => {
+        if (c.id === caseId) {
+          const targetItem = c.checklist.find((item) => item.id === itemId);
+          const updatedChecklist = c.checklist.map((item) =>
+            item.id === itemId ? { ...item, status } : item
+          );
+          // Synchronize matching document if it exists
+          const updatedDocs = targetItem
+            ? c.documents.map((doc) => {
+                if (
+                  doc.title.trim().toLowerCase() === targetItem.title.trim().toLowerCase() ||
+                  doc.title.includes(targetItem.title) ||
+                  targetItem.title.includes(doc.title)
+                ) {
+                  return { ...doc, status };
+                }
+                return doc;
+              })
+            : c.documents;
+          return {
+            ...c,
+            checklist: updatedChecklist,
+            documents: updatedDocs,
+          };
+        }
+        return c;
+      })
+    );
+  };
+
   const toggleChecklistStatus = (caseId: string, itemId: string) => {
+    setCases((prev) =>
+      prev.map((c) => {
+        if (c.id === caseId) {
+          let targetTitle = '';
+          let nextStatus: DocStatus = 'ตรวจแล้ว';
+          const updatedChecklist = c.checklist.map((item) => {
+            if (item.id === itemId) {
+              targetTitle = item.title;
+              nextStatus = item.status === 'ตรวจแล้ว' ? 'ยังไม่ได้ส่ง' : 'ตรวจแล้ว';
+              return { ...item, status: nextStatus };
+            }
+            return item;
+          });
+          const updatedDocs = targetTitle
+            ? c.documents.map((doc) => {
+                if (
+                  doc.title.trim().toLowerCase() === targetTitle.trim().toLowerCase() ||
+                  doc.title.includes(targetTitle) ||
+                  targetTitle.includes(doc.title)
+                ) {
+                  return { ...doc, status: nextStatus };
+                }
+                return doc;
+              })
+            : c.documents;
+          return {
+            ...c,
+            checklist: updatedChecklist,
+            documents: updatedDocs,
+          };
+        }
+        return c;
+      })
+    );
+  };
+
+  const addDeadline = (
+    caseId: string,
+    deadlineData: Omit<DeadlineItem, 'id' | 'caseId' | 'caseTitle'>
+  ) => {
+    setCases((prev) =>
+      prev.map((c) => {
+        if (c.id === caseId) {
+          const newDeadline: DeadlineItem = {
+            ...deadlineData,
+            id: generateUniqueId('dl'),
+            caseId: c.id,
+            caseTitle: c.title,
+          };
+          return {
+            ...c,
+            deadlines: [...(c.deadlines || []), newDeadline],
+          };
+        }
+        return c;
+      })
+    );
+  };
+
+  const deleteDeadline = (caseId: string, deadlineId: string) => {
     setCases((prev) =>
       prev.map((c) => {
         if (c.id === caseId) {
           return {
             ...c,
-            checklist: c.checklist.map((item) => {
-              if (item.id === itemId) {
-                const nextStatus: CaseDocument['status'] =
-                  item.status === 'ตรวจแล้ว' ? 'ยังไม่ได้ส่ง' : 'ตรวจแล้ว';
-                return { ...item, status: nextStatus };
-              }
-              return item;
-            }),
+            deadlines: (c.deadlines || []).filter((d) => d.id !== deadlineId),
           };
         }
         return c;
@@ -607,7 +774,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const addPerson = (caseId: string, personData: Omit<Person, 'id'>) => {
     const newPerson: Person = {
       ...personData,
-      id: `p-${Date.now()}`,
+      id: generateUniqueId('p'),
     };
     setCases((prev) =>
       prev.map((c) => {
@@ -731,7 +898,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const addLegalLaw = (caseId: string, lawData: Omit<LegalLawNode, 'id'>) => {
     const newLaw: LegalLawNode = {
       ...lawData,
-      id: `law-${Date.now()}`,
+      id: generateUniqueId('law'),
     };
     setCases((prev) =>
       prev.map((c) => {
@@ -779,7 +946,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const addStrategy = (caseId: string, stratData: Omit<StrategyNode, 'id'>) => {
     const newStrat: StrategyNode = {
       ...stratData,
-      id: `strat-${Date.now()}`,
+      id: generateUniqueId('strat'),
     };
     setCases((prev) =>
       prev.map((c) => {
@@ -807,7 +974,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const addDamagesNode = (caseId: string, dmgData: Omit<DamagesNode, 'id'>) => {
     const newDmg: DamagesNode = {
       ...dmgData,
-      id: `dmg-${Date.now()}`,
+      id: generateUniqueId('dmg'),
     };
     setCases((prev) =>
       prev.map((c) => {
@@ -846,7 +1013,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             if (dm.id !== dmgId) return dm;
             return {
               ...dm,
-              items: [...dm.items, { id: `item-${Date.now()}`, ...item }],
+              items: [...dm.items, { id: generateUniqueId('item'), ...item }],
             };
           }),
         };
@@ -875,7 +1042,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const addLawyerNote = (caseId: string, noteData: Omit<LawyerNoteNode, 'id'>) => {
     const newNote: LawyerNoteNode = {
       ...noteData,
-      id: `note-${Date.now()}`,
+      id: generateUniqueId('note'),
     };
     setCases((prev) =>
       prev.map((c) => {
@@ -971,7 +1138,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     );
   };
 
-  const addCustomLink = (caseId: string, fromId: string, toId: string, label?: string) => {
+  const addCustomLink = (caseId: string, fromId: string, toId: string, label?: string, color?: string) => {
     setCases((prev) =>
       prev.map((c) => {
         if (c.id !== caseId) return c;
@@ -982,7 +1149,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           ...c,
           customLinks: [
             ...currentLinks,
-            { id: `link-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`, fromId, toId, label },
+            { id: generateUniqueId('link'), fromId, toId, label, color },
           ],
         };
       })
@@ -1060,7 +1227,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')} น.`;
 
     const newMsg: CaseMessage = {
-      id: `msg-${Date.now()}`,
+      id: generateUniqueId('msg'),
       sender: resolvedSender,
       role,
       text,
@@ -1106,67 +1273,87 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
-  // AI Organize Mind Map: Intelligently orders nodes into clean architectural columns
+  // AI Organize Mind Map: Intelligently orders nodes into clean architectural columns without overlapping
   const autoOrganizeMindMap = (caseId: string) => {
     setCases((prev) =>
       prev.map((c) => {
         if (c.id !== caseId) return c;
 
-        // Column 0: Involved People (Left)
-        const people = (c.people || []).map((p, idx) => ({
-          ...p,
-          x: 80,
-          y: 120 + idx * 190,
-        }));
+        // Column 0 (x: 80): บุคคลที่เกี่ยวข้อง (People) & กลยุทธ์ต่อสู้ (Strategies)
+        let curPersonY = 100;
+        const people = (c.people || []).map((p) => {
+          const y = curPersonY;
+          const cardH = p.imageUrl ? 300 : 210;
+          curPersonY += cardH + 45;
+          return { ...p, x: 80, y };
+        });
 
-        // Column 1: Root Case Node & Sequential Timeline Events (Center)
-        const events = (c.events || []).map((e, idx) => ({
-          ...e,
-          x: 420,
-          y: 380 + idx * 220,
-        }));
+        let curStratY = Math.max(curPersonY + 40, 520);
+        const strategies = (c.strategies || []).map((s) => {
+          const y = curStratY;
+          const cardH = 260 + (s.counterPlan ? 40 : 0) + (s.imageUrl ? 80 : 0);
+          curStratY += cardH + 45;
+          return { ...s, x: 80, y };
+        });
 
-        // Column 2: Documents & Evidence (Right 1)
-        const documents = (c.documents || []).map((d, idx) => ({
-          ...d,
-          x: 840,
-          y: 120 + idx * 220,
-        }));
+        // Column 1 (x: 440): คดีหลัก (Case Root) & ไทม์ไลน์เหตุการณ์ (Timeline Events)
+        const caseX = 440;
+        const caseY = 100; // Case root height is ~360px
+        let curEventY = 530; // Clear clearance below Case Root so they never overlap
 
-        // Column 3: Legal Laws & Statutes (Right 2)
-        const legalLaws = (c.legalLaws || []).map((l, idx) => ({
-          ...l,
-          x: 1240,
-          y: 120 + idx * 260,
-        }));
+        const events = (c.events || []).map((e) => {
+          const y = curEventY;
+          const descLen = (e.description || '').length;
+          const descExtra = Math.min(Math.floor(descLen / 50) * 16, 80);
+          const imgExtra = e.imageUrl ? 80 : 0;
+          const peopleExtra = (e.relatedPersonNames?.length || 0) > 0 ? 24 : 0;
+          const cardH = 250 + descExtra + imgExtra + peopleExtra;
+          curEventY += cardH + 50;
+          return { ...e, x: 440, y };
+        });
 
-        // Left Bottom: Strategy & Counter-arguments
-        const strategies = (c.strategies || []).map((s, idx) => ({
-          ...s,
-          x: 80,
-          y: 580 + idx * 260,
-        }));
+        // Column 2 (x: 840): พยานเอกสารและหลักฐาน (Documents) & ค่าเสียหาย (Damages)
+        let curDocY = 100;
+        const documents = (c.documents || []).map((d) => {
+          const y = curDocY;
+          const cardH = d.imageUrl ? 320 : (d.fileName ? 270 : 220);
+          curDocY += cardH + 45;
+          return { ...d, x: 840, y };
+        });
 
-        // Right 1 Bottom: Damages calculation
-        const docBottom = documents.length > 0 ? 120 + documents.length * 220 + 40 : 580;
-        const damages = (c.damages || []).map((dmg, idx) => ({
-          ...dmg,
-          x: 840,
-          y: Math.max(docBottom, 580) + idx * 280,
-        }));
+        let curDmgY = Math.max(curDocY + 40, 800);
+        const damages = (c.damages || []).map((dmg) => {
+          const y = curDmgY;
+          const itemsCount = dmg.items?.length || 1;
+          const cardH = 250 + itemsCount * 45 + (dmg.imageUrl ? 80 : 0);
+          curDmgY += cardH + 50;
+          return { ...dmg, x: 840, y };
+        });
 
-        // Right 2 Bottom: Lawyer Notes
-        const lawBottom = legalLaws.length > 0 ? 120 + legalLaws.length * 260 + 40 : 580;
-        const lawyerNotes = (c.lawyerNotes || []).map((n, idx) => ({
-          ...n,
-          x: 1240,
-          y: Math.max(lawBottom, 580) + idx * 230,
-        }));
+        // Column 3 (x: 1260): ข้อกฎหมาย (Legal Laws) & บันทึกยุทธวิธีทนาย (Lawyer Notes)
+        let curLawY = 100;
+        const legalLaws = (c.legalLaws || []).map((l) => {
+          const y = curLawY;
+          const elemCount = l.elements?.length || 0;
+          const cardH = 260 + elemCount * 40 + (l.imageUrl ? 80 : 0);
+          curLawY += cardH + 50;
+          return { ...l, x: 1260, y };
+        });
+
+        let curNoteY = Math.max(curLawY + 40, 800);
+        const lawyerNotes = (c.lawyerNotes || []).map((n) => {
+          const y = curNoteY;
+          const contentLen = (n.content || '').length;
+          const contentExtra = Math.min(Math.floor(contentLen / 50) * 16, 90);
+          const cardH = 230 + contentExtra + (n.imageUrl ? 80 : 0);
+          curNoteY += cardH + 50;
+          return { ...n, x: 1260, y };
+        });
 
         return {
           ...c,
-          x: 420,
-          y: 140,
+          x: caseX,
+          y: caseY,
           people,
           events,
           documents,
@@ -1238,6 +1425,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         updateDocStatus,
         addChecklistItem,
         toggleChecklistStatus,
+        updateChecklistStatus,
+        addDeadline,
+        deleteDeadline,
         addPerson,
         deletePerson,
         updateNodePosition,

@@ -129,29 +129,62 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
 
               {/* Status and Action Buttons */}
               <div className="flex items-center space-x-2.5 self-end sm:self-center">
-                {/* Status Badge */}
-                <span
-                  className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${
-                    doc.status === 'ตรวจแล้ว'
-                      ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                      : doc.status === 'กำลังตรวจ'
-                      ? 'bg-amber-50 text-amber-800 border-amber-200'
-                      : 'bg-slate-100 text-slate-600 border-slate-200'
-                  }`}
-                >
-                  {doc.status}
-                </span>
+                {/* Status Badge / Selector */}
+                {currentUser.role === 'lawyer' ? (
+                  <div className="relative inline-flex items-center">
+                    <select
+                      value={doc.status}
+                      onChange={(e) => updateDocStatus(caseItem.id, doc.id, e.target.value as DocStatus)}
+                      className={`text-xs font-semibold px-2.5 py-1 rounded-full border cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition appearance-none pr-6 ${
+                        doc.status === 'ตรวจแล้ว'
+                          ? 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100'
+                          : doc.status === 'กำลังตรวจ'
+                          ? 'bg-amber-50 text-amber-800 border-amber-300 hover:bg-amber-100'
+                          : doc.status === 'ส่งแล้ว'
+                          ? 'bg-sky-50 text-sky-800 border-sky-300 hover:bg-sky-100'
+                          : 'bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200'
+                      }`}
+                      title="คลิกเพื่อเปลี่ยนสถานะเอกสาร"
+                    >
+                      <option value="ยังไม่ได้ส่ง">⚪ ยังไม่ได้ส่ง</option>
+                      <option value="ส่งแล้ว">🔵 ส่งแล้ว</option>
+                      <option value="กำลังตรวจ">🟡 กำลังตรวจ</option>
+                      <option value="ตรวจแล้ว">🟢 ตรวจแล้ว</option>
+                    </select>
+                    <span className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-[9px] text-slate-500">
+                      ▼
+                    </span>
+                  </div>
+                ) : (
+                  <span
+                    className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${
+                      doc.status === 'ตรวจแล้ว'
+                        ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                        : doc.status === 'กำลังตรวจ'
+                        ? 'bg-amber-50 text-amber-800 border-amber-200'
+                        : doc.status === 'ส่งแล้ว'
+                        ? 'bg-sky-50 text-sky-800 border-sky-200'
+                        : 'bg-slate-100 text-slate-600 border-slate-200'
+                    }`}
+                  >
+                    {doc.status}
+                  </span>
+                )}
 
-                {/* Status Switcher for Lawyer */}
+                {/* Status Quick Cycle for Lawyer */}
                 {currentUser.role === 'lawyer' && (
                   <button
                     onClick={() => {
-                      const next: DocStatus =
-                        doc.status === 'ตรวจแล้ว' ? 'กำลังตรวจ' : 'ตรวจแล้ว';
-                      updateDocStatus(caseItem.id, doc.id, next);
+                      const cycleMap: Record<DocStatus, DocStatus> = {
+                        'ยังไม่ได้ส่ง': 'ส่งแล้ว',
+                        'ส่งแล้ว': 'กำลังตรวจ',
+                        'กำลังตรวจ': 'ตรวจแล้ว',
+                        'ตรวจแล้ว': 'ยังไม่ได้ส่ง',
+                      };
+                      updateDocStatus(caseItem.id, doc.id, cycleMap[doc.status] || 'ตรวจแล้ว');
                     }}
-                    className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-xs font-medium text-slate-700 transition"
-                    title="สลับสถานะการตรวจ"
+                    className="p-1.5 rounded-lg border border-slate-200 hover:bg-indigo-50 hover:border-indigo-200 text-xs font-medium text-slate-700 transition"
+                    title="คลิกเพื่อสลับสถานะถัดไป"
                   >
                     <FileCheck2 className="w-4 h-4 text-indigo-600" />
                   </button>

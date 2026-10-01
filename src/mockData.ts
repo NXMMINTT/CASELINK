@@ -310,8 +310,8 @@ export const INITIAL_CASES: CaseItem[] = [
           { id: 'el-3', text: 'มีหนังสือบอกกล่าวให้เวลาพอสมควร (Notice)', satisfied: true },
           { id: 'el-4', text: 'พ้นกำหนดเวลาแล้วยังคงไม่ชำระหนี้', satisfied: true },
         ],
-        x: 420,
-        y: 1100,
+        x: 1240,
+        y: 100,
       },
     ],
     strategies: [
@@ -324,7 +324,7 @@ export const INITIAL_CASES: CaseItem[] = [
         counterPlan: 'เตรียมนำสืบบันทึกตรวจรับงานงวดที่ 2 และใบสั่งของ พบว่าจำเลยมิได้สั่งของล่วงหน้าตามวิสัยผู้รับจ้างมืออาชีพ',
         imageUrl: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=400&auto=format&fit=crop&q=80',
         x: 80,
-        y: 680,
+        y: 860,
       },
       {
         id: 'strat-2',
@@ -334,7 +334,7 @@ export const INITIAL_CASES: CaseItem[] = [
         keyArgument: 'สัญญาระบุเบี้ยปรับวันละ 5,000 บาทชัดเจน ตั้งแต่วันที่ 21 มี.ค. จนถึงวันบอกเลิกสัญญา',
         counterPlan: 'อ้างคำพิพากษาฎีกาเทียบเคียง เบี้ยปรับอัตราไม่เกิน 0.2% ต่อวัน ศาลมักไม่ปรับลด',
         x: 80,
-        y: 980,
+        y: 1180,
       },
     ],
     damages: [
@@ -349,8 +349,8 @@ export const INITIAL_CASES: CaseItem[] = [
           { id: 'di-4', label: 'ค่าใช้จ่ายในการบอกกล่าวและติดตามทวงถาม', amount: 100000 },
         ],
         interestRate: 5,
-        x: 860,
-        y: 840,
+        x: 840,
+        y: 800,
       },
     ],
     lawyerNotes: [
@@ -360,8 +360,8 @@ export const INITIAL_CASES: CaseItem[] = [
         content: 'เน้นถามกรรมการผู้จัดการเรื่องใบเสร็จสั่งซื้อวัสดุในวันที่ 15 ก.พ. ว่าไม่ได้สั่งซื้อจริงตามที่อ้าง และตรวจสอบพยานนายพิชัยเรื่องการรับรู้สภาพไซต์งานก่อนทำสัญญา',
         color: 'amber',
         imageUrl: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&auto=format&fit=crop&q=80',
-        x: 420,
-        y: 1380,
+        x: 1240,
+        y: 520,
       },
     ],
     futureUpdates: [
