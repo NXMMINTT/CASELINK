@@ -44,7 +44,7 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
         <div>
           <h2 className="text-xl font-bold text-slate-900 tracking-tight">คลังเอกสารของคดี</h2>
           <p className="text-slate-500 text-xs sm:text-sm mt-0.5">
-            รวบรวมไฟล์หลักฐานและเอกสารประกอบคดีทั้งหมด ({caseItem.documents.length} รายการ)
+            รวบรวมไฟล์หลักฐานและเอกสารประกอบคดีทั้งหมด ({caseItem.documents.length} รายการ — ข้อมูลจำลองในเบราว์เซอร์)
           </p>
         </div>
 
@@ -53,7 +53,7 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
           className="inline-flex items-center space-x-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 px-4 rounded-xl shadow-sm transition text-xs sm:text-sm cursor-pointer self-start sm:self-auto"
         >
           <Plus className="w-4 h-4 stroke-[2.5]" />
-          <span>+ ส่งเอกสาร</span>
+          <span>+ จำลองการส่งเอกสาร</span>
         </button>
       </div>
 

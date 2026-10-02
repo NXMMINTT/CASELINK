@@ -41,31 +41,10 @@ export const CaseOverviewTab: React.FC<CaseOverviewTabProps> = ({ caseItem }) =>
 
   const handleGenerateAi = async () => {
     setIsAnalyzingAi(true);
-    try {
-      const res = await fetch('/api/ai/post-case-analysis', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          caseData: caseItem,
-          courtVerdict: caseItem.courtVerdict,
-        }),
-      });
-
-      if (res.ok) {
-        const resData = await res.json();
-        if (resData.success && resData.data) {
-          generatePostCaseAnalysis(caseItem.id, resData.data);
-          setIsAnalyzingAi(false);
-          return;
-        }
-      }
+    setTimeout(() => {
       generatePostCaseAnalysis(caseItem.id);
-    } catch (err) {
-      console.warn('AI analysis call error, using local generator:', err);
-      generatePostCaseAnalysis(caseItem.id);
-    } finally {
       setIsAnalyzingAi(false);
-    }
+    }, 400);
   };
 
   const handleCopyLearnings = () => {

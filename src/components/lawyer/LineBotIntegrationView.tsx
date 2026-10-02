@@ -145,11 +145,11 @@ export const LineBotIntegrationView: React.FC = () => {
 
       const newLog: LineLogItem = {
         id: `log-${Date.now()}`,
-        timestamp: 'เพิ่งส่งเมื่อสักครู่',
+        timestamp: 'เพิ่งจำลองเมื่อสักครู่',
         clientName: activeCase?.clientName || 'ลูกความ',
         caseTitle: activeCase?.title || 'คดี',
         templateName: templateNameMap[templateType],
-        status: settings.channelAccessToken ? 'delivered' : 'simulated',
+        status: 'simulated',
       };
 
       const updatedLogs = [newLog, ...logs];
@@ -157,12 +157,10 @@ export const LineBotIntegrationView: React.FC = () => {
       localStorage.setItem(LOCAL_STORAGE_KEY_LINE_LOGS, JSON.stringify(updatedLogs));
 
       setSendSuccessToast(
-        settings.channelAccessToken
-          ? `ส่งการแจ้งเตือนไปยัง LINE ของ ${activeCase?.clientName || 'ลูกความ'} เรียบร้อยแล้ว!`
-          : `[โหมดจำลอง] ส่งข้อความแจ้งเตือน ${templateNameMap[templateType]} ถึง LINE ลูกความจำลองเรียบร้อย!`
+        `[โหมดจำลอง] แสดงตัวอย่าง Flex Message (${templateNameMap[templateType]}) สำเร็จ — ไม่มีการส่ง LINE จริง`
       );
       setTimeout(() => setSendSuccessToast(null), 4000);
-    }, 700);
+    }, 500);
   };
 
   const handleCopyClientLink = () => {
@@ -181,18 +179,18 @@ export const LineBotIntegrationView: React.FC = () => {
           <div className="space-y-2">
             <div className="flex items-center space-x-2.5">
               <span className="px-3 py-1 bg-[#06C755] text-white font-bold text-xs rounded-full flex items-center space-x-1.5 shadow-sm">
-                <span>LINE Official Bot</span>
+                <span>LINE Official (โหมดจำลอง)</span>
               </span>
-              <span className="text-xs bg-emerald-950 text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-700/60 font-mono">
-                Zero-Knowledge Local Key
+              <span className="text-xs bg-amber-950 text-amber-300 px-2.5 py-0.5 rounded-full border border-amber-700/60 font-medium">
+                Simulation Only — ไม่มีการส่ง API จริง
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-              ระบบแจ้งเตือนลูกความอัตโนมัติผ่าน LINE Official
+              จำลองระบบแจ้งเตือนลูกความผ่าน LINE Official
             </h1>
             <p className="text-sm text-slate-300 max-w-2xl leading-relaxed">
-              เชื่อมต่อ LINE Messaging API ของสำนักงานทนายความ เพื่อส่งข้อความ Flex Card สวยงาม แจ้งวันนัดศาล
-              อัปเดตสถานะคดี และทวงถามเอกสารเข้า LINE ของลูกความโดยตรง โดยไม่ผ่านเซิร์ฟเวอร์ส่วนกลาง
+              ทดลองดูรูปแบบข้อความ Flex Card แจ้งวันนัดศาล อัปเดตสถานะคดี และทวงถามเอกสารในหน้าต่างจำลองสมาร์ตโฟน
+              (เดโมนี้เป็นแบบจำลองบน GitHub Pages ไม่มีการเชื่อมต่อ LINE API ภายนอก และไม่บันทึก Token จริง)
             </p>
           </div>
 
@@ -202,7 +200,7 @@ export const LineBotIntegrationView: React.FC = () => {
               className="px-4 py-2.5 bg-slate-800/80 hover:bg-slate-700 text-white text-xs font-semibold rounded-xl border border-slate-700 flex items-center space-x-2 transition cursor-pointer"
             >
               <QrCode className="w-4 h-4 text-emerald-400" />
-              <span>QR Code เพิ่มเพื่อน</span>
+              <span>QR Code (ตัวอย่างจำลอง)</span>
             </button>
 
             <button
@@ -210,7 +208,7 @@ export const LineBotIntegrationView: React.FC = () => {
               className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl shadow-md flex items-center space-x-2 transition cursor-pointer"
             >
               {copiedLink ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-              <span>{copiedLink ? 'คัดลอกลิงก์แล้ว' : 'ลิงก์พอร์ทัลลูกความ'}</span>
+              <span>{copiedLink ? 'คัดลอกลิงก์ตัวอย่างแล้ว' : 'ลิงก์พอร์ทัล (ตัวอย่างจำลอง)'}</span>
             </button>
           </div>
         </div>
@@ -226,7 +224,7 @@ export const LineBotIntegrationView: React.FC = () => {
             }`}
           >
             <Send className="w-3.5 h-3.5" />
-            <span>สร้างและส่งการแจ้งเตือน</span>
+            <span>สร้างและจำลองการแจ้งเตือน</span>
           </button>
 
           <button
@@ -592,13 +590,13 @@ export const LineBotIntegrationView: React.FC = () => {
                   {isSending ? (
                     <>
                       <RefreshCw className="w-4 h-4 animate-spin" />
-                      <span>กำลังส่งข้อความเข้า LINE...</span>
+                      <span>กำลังจำลองการส่งเข้า LINE...</span>
                     </>
                   ) : (
                     <>
                       <Send className="w-4 h-4" />
                       <span>
-                        ส่งแจ้งเตือนเข้า LINE ลูกความ ({activeCase?.clientName || 'ลูกความ'})
+                        จำลองการแจ้งเตือนเข้า LINE ลูกความ ({activeCase?.clientName || 'ลูกความ'})
                       </span>
                     </>
                   )}
@@ -807,22 +805,32 @@ export const LineBotIntegrationView: React.FC = () => {
         </div>
       )}
 
-      {/* TAB 2: BOT SETTINGS */}
+      {/* TAB 2: BOT SIMULATION SETTINGS (Requirement 3: No real tokens) */}
       {activeTab === 'settings' && (
         <div className="max-w-3xl bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-xs space-y-6">
           <div className="flex items-center justify-between border-b border-slate-100 pb-4">
             <div>
               <h3 className="text-lg font-bold text-slate-900">
-                ตั้งค่า Custom LINE Messaging API Bot ของสำนักงาน
+                ตั้งค่าการแสดงผล LINE Official (โหมดจำลอง)
               </h3>
               <p className="text-xs text-slate-500">
-                เชื่อมต่อ LINE Bot ของทนายความเอง เพื่อให้ข้อความส่งในนามสำนักงานของคุณโดยตรง
+                ปรับแต่งชื่อบอทและไอดีสำหรับแสดงในหน้าต่างจำลองสมาร์ตโฟน
               </p>
             </div>
-            <div className="p-2 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center space-x-2 text-xs font-bold">
-              <Shield className="w-4 h-4" />
-              <span>Local Storage Vault (ปลอดภัย 100%)</span>
+            <div className="p-2 rounded-xl bg-amber-50 text-amber-800 border border-amber-200 flex items-center space-x-2 text-xs font-bold">
+              <span>โหมดจำลอง (Simulator)</span>
             </div>
+          </div>
+
+          {/* Privacy & Safety Notice */}
+          <div className="p-4 rounded-xl bg-amber-50/70 border border-amber-200 text-amber-900 text-xs space-y-1.5 leading-relaxed">
+            <div className="flex items-center space-x-2 font-bold text-amber-950">
+              <Shield className="w-4 h-4 text-amber-700" />
+              <span>ความปลอดภัยและความซื่อตรงของระบบเดโม</span>
+            </div>
+            <p>
+              เนื่องจากเว็บไซต์นี้เป็นเดโมแบบ static บน GitHub Pages จึง<strong>ไม่รับ ไม่บันทึก และไม่ขอ Channel Secret หรือ Channel Access Token จริง</strong> และไม่มีการยิง API ภายนอก ข้อมูลทั้งหมดเป็นเพียงการแสดงตัวอย่าง Flex Message บนหน้าจอจำลองเท่านั้น
+            </p>
           </div>
 
           <form
@@ -834,7 +842,7 @@ export const LineBotIntegrationView: React.FC = () => {
           >
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">
-                ชื่อบอท / สำนักงานที่แสดง (Bot Display Name)
+                ชื่อบอท / สำนักงานที่แสดงในเดโม (Bot Display Name)
               </label>
               <input
                 type="text"
@@ -845,79 +853,23 @@ export const LineBotIntegrationView: React.FC = () => {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  LINE Official Basic ID (LINE ID)
-                </label>
-                <input
-                  type="text"
-                  value={settings.basicId}
-                  onChange={(e) => setSettings({ ...settings, basicId: e.target.value })}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono"
-                  placeholder="เช่น @somchai_lawyer"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Channel ID (จาก LINE Developers)
-                </label>
-                <input
-                  type="text"
-                  value={settings.channelId}
-                  onChange={(e) => setSettings({ ...settings, channelId: e.target.value })}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono"
-                  placeholder="เลข 10 หลัก"
-                />
-              </div>
-            </div>
-
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Channel Secret
+                LINE Official ID จำลอง (สำหรับแสดงผล)
               </label>
               <input
-                type="password"
-                value={settings.channelSecret}
-                onChange={(e) => setSettings({ ...settings, channelSecret: e.target.value })}
+                type="text"
+                value={settings.basicId}
+                onChange={(e) => setSettings({ ...settings, basicId: e.target.value })}
                 className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono"
-                placeholder="••••••••••••••••••••••••••••••••"
+                placeholder="เช่น @caselink_demo"
               />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Channel Access Token (Long-Lived Token)
-              </label>
-              <textarea
-                rows={3}
-                value={settings.channelAccessToken}
-                onChange={(e) => setSettings({ ...settings, channelAccessToken: e.target.value })}
-                className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                placeholder="วาง Channel Access Token ที่ได้จากแท็บ Messaging API ใน LINE Developers Console..."
-              />
-              <p className="text-[11px] text-slate-500 mt-1">
-                * หากเว้นว่างไว้ ระบบจะทำงานใน <strong>โหมดจำลอง (Simulator Mode)</strong> ให้ทดสอบการส่งได้ทันที
-              </p>
-            </div>
-
-            {/* Zero-Knowledge Privacy Guarantee Banner */}
-            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-600 text-xs space-y-1.5">
-              <div className="flex items-center space-x-2 font-bold text-slate-800">
-                <Lock className="w-4 h-4 text-emerald-600" />
-                <span>คำรับรองความปลอดภัยของโทเค็น (Token Security)</span>
-              </div>
-              <p className="text-slate-500 leading-relaxed">
-                Channel Access Token ของทนายความจะถูกบันทึกลงใน Browser Storage ของเครื่องนี้เท่านั้น
-                ไม่มีการส่งไปยังเครื่องแม่ข่าย (Server) ของ CASELINK ใดๆ ทั้งสิ้น
-              </p>
             </div>
 
             {settingsSaved && (
               <div className="p-3 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-xl flex items-center space-x-2 text-xs font-semibold">
                 <Check className="w-4 h-4 text-emerald-600" />
-                <span>บันทึกการตั้งค่า LINE Bot เรียบร้อยแล้ว</span>
+                <span>บันทึกชื่อแสดงผลจำลองเรียบร้อยแล้ว</span>
               </div>
             )}
 
@@ -926,7 +878,7 @@ export const LineBotIntegrationView: React.FC = () => {
                 type="submit"
                 className="px-6 py-2.5 bg-[#06C755] hover:bg-[#05b34c] text-white font-bold rounded-xl shadow-md transition cursor-pointer text-sm"
               >
-                บันทึกการตั้งค่า LINE Bot
+                บันทึกการตั้งค่าตัวอย่าง
               </button>
             </div>
           </form>
@@ -938,9 +890,9 @@ export const LineBotIntegrationView: React.FC = () => {
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <div>
-              <h3 className="text-base font-bold text-slate-900">ประวัติการส่งแจ้งเตือนเข้า LINE</h3>
+              <h3 className="text-base font-bold text-slate-900">ประวัติการจำลองแจ้งเตือน</h3>
               <p className="text-xs text-slate-500">
-                บันทึกข้อความทั้งหมดที่ทนายกดส่งไปยังลูกความในอุปกรณ์นี้
+                บันทึกประวัติการทดลองแสดงผล Flex Message ในเบราว์เซอร์เครื่องนี้
               </p>
             </div>
             <button
@@ -956,7 +908,7 @@ export const LineBotIntegrationView: React.FC = () => {
 
           {logs.length === 0 ? (
             <div className="text-center py-12 text-slate-400 text-xs">
-              ยังไม่มีประวัติการส่งแจ้งเตือน
+              ยังไม่มีประวัติการจำลองแจ้งเตือน
             </div>
           ) : (
             <div className="divide-y divide-slate-100">
@@ -978,9 +930,9 @@ export const LineBotIntegrationView: React.FC = () => {
                   </div>
 
                   <div className="text-right">
-                    <span className="inline-flex items-center space-x-1 text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 text-[10px]">
-                      <Check className="w-3 h-3" />
-                      <span>{log.status === 'delivered' ? 'ส่งเข้า LINE แล้ว' : 'ส่งในโหมดจำลอง'}</span>
+                    <span className="inline-flex items-center space-x-1 text-slate-700 font-semibold bg-slate-100 px-2.5 py-0.5 rounded-full border border-slate-200 text-[10px]">
+                      <Check className="w-3 h-3 text-emerald-600" />
+                      <span>[จำลอง] บันทึกในเดโม</span>
                     </span>
                     <div className="text-[10px] text-slate-400 mt-0.5">{log.timestamp}</div>
                   </div>
@@ -1060,11 +1012,10 @@ export const LineBotIntegrationView: React.FC = () => {
                 <span className="w-6 h-6 rounded-full bg-[#06C755] text-white flex items-center justify-center text-xs">
                   4
                 </span>
-                <span>คัดลอก Channel Access Token</span>
+                <span>Channel Access Token (สำหรับระบบจริง)</span>
               </div>
               <p className="text-slate-600 text-xs leading-relaxed">
-                ไปที่แท็บ <strong>Messaging API</strong> เลื่อนลงมาด้านล่าง กดปุ่ม <strong>Issue</strong> เพื่อรับ
-                Channel Access Token แล้วนำมาวางในแท็บตั้งค่าของ CASELINK
+                ในระบบจริงเมื่อนำไปติดตั้งบนเซิร์ฟเวอร์ จะใช้ Token นี้ร่วมกับ Webhook URL (สำหรับเดโมแบบ Static นี้ ระบบจะจำลอง Flex Message ในเบราว์เซอร์ จึงไม่จำเป็นต้องขอหรือกรอก Token ใดๆ)
               </p>
             </div>
           </div>
@@ -1085,11 +1036,16 @@ export const LineBotIntegrationView: React.FC = () => {
               <QrCode className="w-6 h-6" />
             </div>
             <div>
+              <div className="inline-block mb-1">
+                <span className="text-[10px] text-amber-800 bg-amber-100 border border-amber-300 px-2 py-0.5 rounded-full font-bold">
+                  ตัวอย่างจำลอง — ไม่สามารถสแกนจริงได้
+                </span>
+              </div>
               <h4 className="text-base font-bold text-slate-900">
-                QR Code เชิญลูกความเพิ่มเพื่อน LINE
+                QR Code สำหรับเดโม (ตัวอย่างจำลอง)
               </h4>
               <p className="text-xs text-slate-500 mt-1">
-                ให้ลูกความสแกนเพื่อรับการแจ้งเตือนวันนัดศาลและความคืบหน้าคดี
+                ภาพตัวอย่างสำหรับสาธิตหน้าจอเชิญลูกความเข้าสู่ช่องทาง LINE Official
               </p>
             </div>
 

@@ -51,13 +51,14 @@ function MainApp() {
     simulateClientMessage,
     showPrivacyModal,
     setShowPrivacyModal,
+    resetDemoData,
   } = useApp();
   const [isCreateCaseOpen, setIsCreateCaseOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isUploadDocOpen, setIsUploadDocOpen] = useState(false);
   const [uploadDocType, setUploadDocType] = useState('สัญญา');
 
-  // If not logged in, enforce the Register / Login Gate!
+  // If not logged in, enforce the Demo Role Selector Gate!
   if (!isAuthenticated) {
     return (
       <>
@@ -78,6 +79,23 @@ function MainApp() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col text-slate-900 pb-16 md:pb-0 relative">
+      {/* Persistent Demo Disclaimer Banner (Requirement 7) */}
+      <div className="bg-amber-950/95 text-amber-200 border-b border-amber-800/80 px-4 py-2 text-xs font-medium z-40 flex items-center justify-between backdrop-blur-xs">
+        <div className="flex items-center space-x-2">
+          <span className="bg-amber-500/30 text-amber-300 border border-amber-500/50 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">
+            เดโมต้นแบบ
+          </span>
+          <span className="text-amber-100">
+            เว็บไซต์นี้เป็นเดโมสำหรับทดลองใช้งาน (Static Prototype บน GitHub Pages) — ใช้ข้อมูลสมมติเท่านั้น ห้ามใส่ข้อมูลลูกความจริง
+          </span>
+        </div>
+        <button
+          onClick={resetDemoData}
+          className="text-amber-300 hover:text-white underline text-[11px] cursor-pointer ml-3 flex-shrink-0"
+        >
+          คืนค่าข้อมูลตัวอย่าง
+        </button>
+      </div>
       {/* Realtime Incoming Chat Notification Banner */}
       {chatNotification && (
         <div className="fixed top-4 right-4 z-50 max-w-md bg-slate-900/95 text-white p-4 rounded-2xl shadow-2xl border border-emerald-500/80 backdrop-blur-md animate-in slide-in-from-top-4 flex items-start space-x-3">

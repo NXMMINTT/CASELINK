@@ -1,5 +1,29 @@
 import { CaseItem, UserProfile } from './types.ts';
 
+// Helper to get formatted Thai date relative to today (avoids stale past dates in demo)
+export const getRelativeThaiDate = (offsetDays: number): string => {
+  const d = new Date();
+  d.setDate(d.getDate() + offsetDays);
+  const day = d.getDate();
+  const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+  const m = months[d.getMonth()];
+  const y = d.getFullYear() + 543;
+  return `${day} ${m} ${y}`;
+};
+
+export const getRelativeThaiFullDate = (offsetDays: number): string => {
+  const d = new Date();
+  d.setDate(d.getDate() + offsetDays);
+  const day = d.getDate();
+  const months = [
+    'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+    'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+  ];
+  const m = months[d.getMonth()];
+  const y = d.getFullYear() + 543;
+  return `${day} ${m} ${y}`;
+};
+
 export const DEMO_LAWYER: UserProfile = {
   id: 'usr-lawyer-1',
   name: 'ทนายสมชาย',
@@ -22,7 +46,7 @@ export const INITIAL_CASES: CaseItem[] = [
     title: 'นายสมชาย vs บริษัท ABC',
     type: 'คดีแพ่ง',
     status: 'กำลังดำเนินการ',
-    deadline: '30 กันยายน 2026',
+    deadline: getRelativeThaiFullDate(3),
     clientName: 'นายสมชาย',
     imageUrl: 'https://images.unsplash.com/photo-1450133064473-71024230f91b?w=500&auto=format&fit=crop&q=80',
     description: 'คดีผิดสัญญาจ้างทำของ เรียกค่าเสียหายและบอกเลิกสัญญา กรณีผู้รับจ้างไม่ส่งมอบงานตามงวดที่ตกลงในสัญญา',
@@ -244,7 +268,7 @@ export const INITIAL_CASES: CaseItem[] = [
         title: 'เตรียมเอกสารศาล',
         category: 'lawyer',
         status: 'กำลังตรวจ',
-        dueText: 'ภายใน 30 ก.ย.',
+        dueText: `ภายใน ${getRelativeThaiDate(3)}`,
       },
     ],
     deadlines: [
@@ -253,7 +277,7 @@ export const INITIAL_CASES: CaseItem[] = [
         caseId: 'case-abc-001',
         caseTitle: 'คดีนายสมชาย',
         title: 'ตรวจเอกสารและยื่นเพิ่มเติมต่อศาล',
-        dueDate: '30 ก.ย. 2026',
+        dueDate: getRelativeThaiDate(3),
         urgency: 'high',
         type: 'court',
       },
@@ -262,7 +286,7 @@ export const INITIAL_CASES: CaseItem[] = [
         caseId: 'case-abc-001',
         caseTitle: 'คดีนายสมชาย',
         title: 'นัดไกล่เกลี่ยและชี้สองสถาน',
-        dueDate: '15 ต.ค. 2026',
+        dueDate: getRelativeThaiDate(14),
         urgency: 'medium',
         type: 'court',
       },
@@ -271,7 +295,7 @@ export const INITIAL_CASES: CaseItem[] = [
         caseId: 'case-abc-001',
         caseTitle: 'คดีนายสมชาย',
         title: 'กำหนดยื่นบัญชีระบุพยานเพิ่มเติม',
-        dueDate: '28 ต.ค. 2026',
+        dueDate: getRelativeThaiDate(25),
         urgency: 'low',
         type: 'document',
       },
@@ -423,7 +447,7 @@ export const INITIAL_CASES: CaseItem[] = [
     title: 'นางสาวกานดา vs นายประเสริฐ',
     type: 'คดีมรดก',
     status: 'กำลังดำเนินการ',
-    deadline: '12 ตุลาคม 2026',
+    deadline: getRelativeThaiFullDate(7),
     clientName: 'นางสาวกานดา',
     description: 'คดีจัดการมรดกและขอให้เพิกถอนนิติกรรมอันเป็นโมฆียะ',
     events: [
@@ -491,7 +515,7 @@ export const INITIAL_CASES: CaseItem[] = [
         caseId: 'case-preecha-002',
         caseTitle: 'คดีนางสาวกานดา',
         title: 'ยื่นคำร้องขอตั้งผู้จัดการมรดก',
-        dueDate: '12 ต.ค. 2026',
+        dueDate: getRelativeThaiDate(7),
         urgency: 'high',
         type: 'court',
       },

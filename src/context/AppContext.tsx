@@ -642,8 +642,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setCases((prev) =>
       prev.map((c) => {
         if (c.id === caseId) {
+          const updatedChecklist = c.checklist.map((item) => {
+            if (
+              item.status === 'ยังไม่ได้ส่ง' &&
+              (item.title.trim().toLowerCase() === docData.title.trim().toLowerCase() ||
+                item.title.includes(docData.type) ||
+                docData.title.includes(item.title))
+            ) {
+              return { ...item, status: docData.status, dueText: 'ส่งแล้ว (รอตรวจ)' };
+            }
+            return item;
+          });
           return {
             ...c,
+            checklist: updatedChecklist,
             documents: [newDoc, ...c.documents],
           };
         }
@@ -1450,8 +1462,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         email: cleanEmail,
         role,
         hasCompletedOnboarding: false,
-        passwordHash: btoa(password), // Obfuscated client-side vault token
-        lawyerLicenseId: lawyerLicenseId?.trim(),
         createdAt: new Date().toISOString(),
       };
       accounts.push(newUser);

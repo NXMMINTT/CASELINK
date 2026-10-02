@@ -36,28 +36,40 @@ const THAI_MONTHS = [
 
 const THAI_MONTH_SHORT_MAP: Record<string, number> = {
   'ม.ค.': 0,
+  'ม.ค': 0,
   มกราคม: 0,
   'ก.พ.': 1,
+  'ก.พ': 1,
   กุมภาพันธ์: 1,
   'มี.ค.': 2,
+  'มี.ค': 2,
   มีนาคม: 2,
   'เม.ย.': 3,
+  'เม.ย': 3,
   เมษายน: 3,
   'พ.ค.': 4,
+  'พ.ค': 4,
   พฤษภาคม: 4,
   'มิ.ย.': 5,
+  'มิ.ย': 5,
   มิถุนายน: 5,
   'ก.ค.': 6,
+  'ก.ค': 6,
   กรกฎาคม: 6,
   'ส.ค.': 7,
+  'ส.ค': 7,
   สิงหาคม: 7,
   'ก.ย.': 8,
+  'ก.ย': 8,
   กันยายน: 8,
   'ต.ค.': 9,
+  'ต.ค': 9,
   ตุลาคม: 9,
   'พ.ย.': 10,
+  'พ.ย': 10,
   พฤศจิกายน: 10,
   'ธ.ค.': 11,
+  'ธ.ค': 11,
   ธันวาคม: 11,
 };
 
@@ -113,10 +125,10 @@ export const CalendarView: React.FC = () => {
     addDeadline,
   } = useApp();
 
-  // Current calendar viewing state (Default to September 2026 or current year)
-  const [currentYear, setCurrentYear] = useState<number>(2026);
-  const [currentMonth, setCurrentMonth] = useState<number>(8); // September (0-indexed = 8)
-  const [selectedDate, setSelectedDate] = useState<number | null>(30); // Default to Sept 30
+  // Current calendar viewing state (Default to real local current date)
+  const [currentYear, setCurrentYear] = useState<number>(() => new Date().getFullYear());
+  const [currentMonth, setCurrentMonth] = useState<number>(() => new Date().getMonth());
+  const [selectedDate, setSelectedDate] = useState<number | null>(() => new Date().getDate());
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedCaseFilter, setSelectedCaseFilter] = useState<string>('all');
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
@@ -124,7 +136,7 @@ export const CalendarView: React.FC = () => {
   // New appointment form state
   const [newTitle, setNewTitle] = useState('');
   const [newCaseId, setNewCaseId] = useState(cases[0]?.id || '');
-  const [newDay, setNewDay] = useState(30);
+  const [newDay, setNewDay] = useState(() => new Date().getDate());
   const [newUrgency, setNewUrgency] = useState<'high' | 'medium' | 'low'>('high');
   const [newType, setNewType] = useState<'court' | 'document' | 'client'>('court');
 
@@ -204,9 +216,10 @@ export const CalendarView: React.FC = () => {
   };
 
   const handleGoToToday = () => {
-    setCurrentYear(2026);
-    setCurrentMonth(8); // กันยายน 2026
-    setSelectedDate(30);
+    const now = new Date();
+    setCurrentYear(now.getFullYear());
+    setCurrentMonth(now.getMonth());
+    setSelectedDate(now.getDate());
   };
 
   const handleOpenCase = (caseId: string) => {
@@ -387,7 +400,11 @@ export const CalendarView: React.FC = () => {
                 const dayNum = i + 1;
                 const dayDeadlines = deadlinesByDay[dayNum] || [];
                 const isSelected = selectedDate === dayNum;
-                const isToday = currentYear === 2026 && currentMonth === 8 && dayNum === 30;
+                const now = new Date();
+                const isToday =
+                  currentYear === now.getFullYear() &&
+                  currentMonth === now.getMonth() &&
+                  dayNum === now.getDate();
 
                 return (
                   <div

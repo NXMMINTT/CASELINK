@@ -11,7 +11,9 @@ import {
   Loader2,
   Edit2,
   Info,
+  Shield,
 } from 'lucide-react';
+import { simulateLocalCaseStructuring } from '../../utils/aiSimulator.ts';
 
 interface AiStructuringModalProps {
   isOpen: boolean;
@@ -50,25 +52,18 @@ export const AiStructuringModal: React.FC<AiStructuringModalProps> = ({
     setErrorMsg(null);
     setIsLoading(true);
 
-    try {
-      const response = await fetch('/api/ai/structure-case', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ storyText }),
-      });
-
-      const json = await response.json();
-      if (json.success && json.data) {
-        setPreviewData(json.data);
-      } else {
-        throw new Error(json.error || 'ไม่สามารถจัดระเบียบข้อมูลได้');
+    // Simulated local parsing in browser (No external API calls, No network traffic)
+    setTimeout(() => {
+      try {
+        const result = simulateLocalCaseStructuring(storyText);
+        setPreviewData(result);
+      } catch (err: any) {
+        console.error(err);
+        setErrorMsg('ไม่สามารถจัดระเบียบข้อมูลได้ กรุณาลองใหม่อีกครั้ง');
+      } finally {
+        setIsLoading(false);
       }
-    } catch (err: any) {
-      console.error(err);
-      setErrorMsg('ระบบไม่สามารถเชื่อมต่อได้ กรุณาลองใหม่อีกครั้ง');
-    } finally {
-      setIsLoading(false);
-    }
+    }, 400);
   };
 
   const handleConfirmSave = () => {
@@ -141,14 +136,13 @@ export const AiStructuringModal: React.FC<AiStructuringModalProps> = ({
 
         {/* Content Body */}
         <div className="p-6 overflow-y-auto space-y-4 flex-1">
-          {/* Important Non-Negotiable AI Disclaimer */}
-          <div className="p-3 bg-amber-50/70 border border-amber-200 rounded-xl flex items-start space-x-2.5 text-xs text-amber-900 leading-relaxed">
+          {/* Important Honest AI Simulation Disclaimer (Requirement 4) */}
+          <div className="p-3 bg-amber-50/80 border border-amber-200 rounded-xl flex items-start space-x-2.5 text-xs text-amber-900 leading-relaxed">
             <Info className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
             <div>
-              <span className="font-semibold">ข้อตกลงการใช้งาน:</span>{' '}
-              AI มีหน้าที่ช่วยจัดระเบียบข้อเท็จจริงตามที่ผู้ใช้ป้อนเท่านั้น
-              ไม่มีการวินิจฉัยทางกฎหมาย ไม่สร้างข้อเท็จจริงใหม่
-              และการตัดสินใจยังเป็นหน้าที่ของทนายความ
+              <span className="font-semibold">โหมดจำลองในเบราว์เซอร์:</span>{' '}
+              ระบบจำลองการจัดระเบียบข้อเท็จจริงในเครื่องของคุณเท่านั้น (Client-Side Simulation)
+              ไม่ได้ส่งข้อความให้ AI ภายนอก ไม่ได้ส่งข้อมูลออกนอกเครื่อง และไม่ได้ให้คำแนะนำทางกฎหมาย
             </div>
           </div>
 

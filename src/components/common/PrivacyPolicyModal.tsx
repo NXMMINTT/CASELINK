@@ -1,15 +1,12 @@
 import React from 'react';
 import {
   X,
-  ShieldCheck,
-  Lock,
+  Shield,
   HardDrive,
-  EyeOff,
-  FileText,
   AlertTriangle,
-  Scale,
-  Cpu,
+  Info,
   CheckCircle2,
+  FileText,
 } from 'lucide-react';
 
 interface PrivacyPolicyModalProps {
@@ -29,18 +26,18 @@ export const PrivacyPolicyModal: React.FC<PrivacyPolicyModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-950/80">
           <div className="flex items-center space-x-3">
-            <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
-              <ShieldCheck className="w-5 h-5" />
+            <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400">
+              <Info className="w-5 h-5" />
             </div>
             <div>
               <h3 className="text-base font-bold text-white flex items-center space-x-2">
-                <span>คำรับรองความปลอดภัย & นโยบายความเป็นส่วนตัว</span>
-                <span className="text-[10px] font-mono font-bold bg-emerald-950 text-emerald-300 border border-emerald-700/60 px-2 py-0.5 rounded-full">
-                  Zero-Knowledge Architecture
+                <span>คำชี้แจงความเป็นส่วนตัว & ข้อจำกัดของระบบเดโม</span>
+                <span className="text-[10px] font-bold bg-amber-950 text-amber-300 border border-amber-700/60 px-2 py-0.5 rounded-full">
+                  Static Demo Prototype
                 </span>
               </h3>
               <p className="text-xs text-slate-400">
-                CASELINK — ออกแบบสำหรับทนายความและวิชาชีพกฎหมาย ปราศจากการเก็บข้อมูลบนเซิร์ฟเวอร์
+                CASELINK — เดโมต้นแบบสำหรับทดลองการใช้งานบน GitHub Pages
               </p>
             </div>
           </div>
@@ -55,75 +52,90 @@ export const PrivacyPolicyModal: React.FC<PrivacyPolicyModalProps> = ({
         {/* Content Body */}
         <div className="p-6 overflow-y-auto space-y-5 text-xs sm:text-sm text-slate-300 leading-relaxed">
           {/* Key Statement Banner */}
-          <div className="p-4 rounded-xl bg-gradient-to-r from-emerald-950/60 to-slate-900 border border-emerald-600/40 text-emerald-200 space-y-1.5">
-            <div className="flex items-center space-x-2 font-bold text-sm text-white">
-              <Lock className="w-4 h-4 text-emerald-400" />
-              <span>คำมั่นสัญญาสำคัญ: ข้อมูลสำนวนคดีทั้งหมดอยู่บนอุปกรณ์ของคุณ 100%</span>
+          <div className="p-4 rounded-xl bg-amber-950/40 border border-amber-600/40 text-amber-200 space-y-1.5">
+            <div className="flex items-center space-x-2 font-bold text-sm text-amber-300">
+              <AlertTriangle className="w-4 h-4 text-amber-400 flex-shrink-0" />
+              <span>คำเตือนสำคัญ: ห้ามใส่ข้อมูลลูกความจริงหรือเอกสารคดีจริง</span>
             </div>
-            <p className="text-xs text-emerald-300/90 leading-normal">
-              CASELINK ไม่จัดเก็บข้อมูลสำนวนคดี พยานหลักฐาน รายชื่อคู่ความ หรือโน้ตยุทธวิธีใดๆ บนเครื่องแม่ข่าย (Central Server) ของเรา ข้อมูลของคุณจะไม่ถูกบันทึกในฐานข้อมูลภายนอก และไม่มีใครสามารถเข้าถึงข้อมูลของคุณได้นอกจากตัวคุณเอง
+            <p className="text-xs text-amber-100/90 leading-normal">
+              เว็บไซต์นี้เป็นเพียงต้นแบบสาธิตแนวคิดการทำงาน (Prototype Demo) เผยแพร่แบบ Static Web บน GitHub Pages
+              ไม่มีระบบ Backend หรือฐานข้อมูลสำหรับความปลอดภัยระดับ Production กรุณาใช้ข้อมูลสมมติในการทดลองเท่านั้น
             </p>
           </div>
 
-          {/* Section 1: Professional Ethics & Privilege */}
-          <div className="space-y-2">
-            <div className="flex items-center space-x-2 text-white font-bold">
-              <Scale className="w-4 h-4 text-purple-400" />
-              <span>1. สอดคล้องกับมรรยาททนายความและเอกสิทธิ์ความลับของลูกความ</span>
-            </div>
-            <p className="text-slate-400 text-xs pl-6">
-              ตาม **ข้อบังคับสภาทนายความว่าด้วยมรรยาททนายความ พ.ศ. 2529 (ข้อ 14)**, **พ.ร.บ. ทนายความ พ.ศ. 2528** และ **ประมวลกฎหมายอาญา มาตรา 323** ทนายความและผู้ประกอบวิชาชีพกฎหมายมีหน้าที่รักษาความลับของลูกความ (Attorney-Client Privilege) โดยมีโทษทางอาญาจำคุกไม่เกิน 6 เดือน ปรับไม่เกิน 10,000 บาท หรือถูกถอนใบอนุญาตว่าความหากข้อมูลรั่วไหล การนำสำนวนคดีไปฝากไว้บน Cloud ทั่วไปจึงมีความเสี่ยงสูง CASELINK จึงถูกสร้างด้วยแนวคิด **Local-First & Client-Device Storage** เพื่อขจัดความเสี่ยงนี้ตั้งแต่ระดับสถาปัตยกรรม
-            </p>
-          </div>
-
-          {/* Section 2: Storage Mechanism */}
+          {/* Section 1: Storage Mechanism */}
           <div className="space-y-2">
             <div className="flex items-center space-x-2 text-white font-bold">
               <HardDrive className="w-4 h-4 text-sky-400" />
-              <span>2. กลไกการจัดเก็บข้อมูลและการเข้าสู่ระบบ (Local Device Vault)</span>
+              <span>1. วิธีการจัดเก็บข้อมูลของเดโม (Browser LocalStorage)</span>
             </div>
-            <div className="pl-6 space-y-1.5 text-xs text-slate-400">
+            <div className="pl-6 space-y-2 text-xs text-slate-400">
               <div className="flex items-start space-x-2">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 mt-0.5 flex-shrink-0" />
-                <span>**บัญชีผู้ใช้และการลงทะเบียน:** ข้อมูลการสมัครสมาชิกและรหัสผ่านจะถูกบันทึกลงในคลังรหัสผ่านเฉพาะในอุปกรณ์ของคุณ (Local Vault) เพื่อความสะดวกในการจดจำเซสชัน</span>
+                <CheckCircle2 className="w-3.5 h-3.5 text-sky-400 mt-0.5 flex-shrink-0" />
+                <span>
+                  <strong>เก็บในเครื่องของคุณเท่านั้น:</strong> ข้อมูลคดีตัวอย่าง เหตุการณ์ในไทม์ไลน์ และสถานะการตรวจสอบ จะถูกบันทึกไว้ในหน่วยความจำของเว็บเบราว์เซอร์เครื่องนี้ (LocalStorage) เท่านั้น ไม่มีการส่งข้อมูลไปยังเซิร์ฟเวอร์ภายนอก
+                </span>
               </div>
               <div className="flex items-start space-x-2">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 mt-0.5 flex-shrink-0" />
-                <span>**ไม่มีการส่งสำนวนคดีขึ้นฐานข้อมูล:** ผัง Mind Map, เอกสารสัญญา, พิกัดการเชื่อมโยง, และการคำนวณค่าเสียหาย ถูกบันทึกไว้ใน Browser Storage ของเครื่องที่คุณใช้งานเท่านั้น</span>
-              </div>
-              <div className="flex items-start space-x-2">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 mt-0.5 flex-shrink-0" />
-                <span>**การสำรองและย้ายเครื่อง:** คุณสามารถกด "ดาวน์โหลดไฟล์สำรองข้อมูล (JSON Backup)" เพื่อเก็บรักษาไว้ใน Flash Drive หรือย้ายไปเปิดบนคอมพิวเตอร์เครื่องอื่นได้อย่างสมบูรณ์</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Section 3: AI Processing Transparency */}
-          <div className="space-y-2">
-            <div className="flex items-center space-x-2 text-white font-bold">
-              <Cpu className="w-4 h-4 text-indigo-400" />
-              <span>3. ความโปร่งใสเมื่อใช้งานฟีเจอร์ AI (Transient AI Processing)</span>
-            </div>
-            <div className="pl-6 space-y-1.5 text-xs text-slate-400">
-              <div className="flex items-start space-x-2">
-                <CheckCircle2 className="w-3.5 h-3.5 text-indigo-400 mt-0.5 flex-shrink-0" />
-                <span>เมื่อคุณกดใช้งาน **"✨ จัดโครงสร้างด้วย AI"** หรือ **"สรุปบทเรียนคดี"** เฉพาะข้อความที่คุณยินยอมให้ส่งเท่านั้นจะถูกส่งผ่านช่องทางเข้ารหัส (TLS 1.3) ไปประมวลผลโครงสร้าง</span>
-              </div>
-              <div className="flex items-start space-x-2">
-                <CheckCircle2 className="w-3.5 h-3.5 text-indigo-400 mt-0.5 flex-shrink-0" />
-                <span>**ไม่มีการนำข้อมูลไปฝึกสอน AI (No Model Training):** ข้อมูลคดีจะไม่ถูกนำไปใช้เทรนหรือปรับปรุงโมเดล AI สาธารณะ และไม่มีการเก็บบันทึกประวัติบน Server ของ CASELINK</span>
+                <CheckCircle2 className="w-3.5 h-3.5 text-sky-400 mt-0.5 flex-shrink-0" />
+                <span>
+                  <strong>ไม่ซิงก์ข้ามเครื่อง:</strong> การแก้ไขข้อมูลในเครื่องนี้จะไม่ปรากฏบนอุปกรณ์อื่น และหากล้างแคชของเบราว์เซอร์หรือกด "รีเซ็ตเดโม" ข้อมูลจะกลับเป็นค่าเริ่มต้น
+                </span>
               </div>
             </div>
           </div>
 
-          {/* Section 4: PDPA & User Rights */}
+          {/* Section 2: Account & Role Switching */}
           <div className="space-y-2">
             <div className="flex items-center space-x-2 text-white font-bold">
-              <EyeOff className="w-4 h-4 text-amber-400" />
-              <span>4. สิทธิในการควบคุมและลบข้อมูล (PDPA & Data Ownership)</span>
+              <Shield className="w-4 h-4 text-indigo-400" />
+              <span>2. การสลับบทบาทและการเข้าสู่ระบบในเดโม</span>
+            </div>
+            <div className="pl-6 space-y-1.5 text-xs text-slate-400">
+              <p>
+                ปุ่มสลับบทบาทระหว่าง "ทนายความ" และ "ลูกความ" หรือการเข้าสู่ระบบในเดโมนี้
+                <strong>ไม่ใช่ระบบยืนยันตัวตน (Authentication) หรือระบบควบคุมสิทธิ์ (Authorization) จริง</strong>
+                เป็นเพียงการสลับมุมมองหน้าจอเพื่อทดสอบประสบการณ์ผู้ใช้ (UX/UI) เท่านั้น และไม่มีการจัดเก็บรหัสผ่านจริง
+              </p>
+            </div>
+          </div>
+
+          {/* Section 3: Simulated Features (LINE, AI, File Uploads) */}
+          <div className="space-y-2">
+            <div className="flex items-center space-x-2 text-white font-bold">
+              <FileText className="w-4 h-4 text-emerald-400" />
+              <span>3. ฟังก์ชันจำลอง (LINE Official, AI, การอัปโหลดไฟล์)</span>
+            </div>
+            <div className="pl-6 space-y-2 text-xs text-slate-400">
+              <div className="flex items-start space-x-2">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 mt-0.5 flex-shrink-0" />
+                <span>
+                  <strong>การเลือกไฟล์:</strong> การเลือกไฟล์เป็นการจำลองชื่อและขนาดไฟล์เพื่อแสดงตัวอย่างในหน้าจอเท่านั้น ไม่มีการอัปโหลดไฟล์จริงหรือจัดเก็บไฟล์ต้นฉบับ
+                </span>
+              </div>
+              <div className="flex items-start space-x-2">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 mt-0.5 flex-shrink-0" />
+                <span>
+                  <strong>LINE Official:</strong> เป็นการจำลองแสดงตัวอย่างหน้าจอสมาร์ตโฟน ไม่มีการเรียก LINE Messaging API จริง และไม่มีการขอหรือบันทึก Token จริง
+                </span>
+              </div>
+              <div className="flex items-start space-x-2">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 mt-0.5 flex-shrink-0" />
+                <span>
+                  <strong>การจัดโครงสร้างและสรุปคดี:</strong> เป็นการจำลองผลลัพธ์ภายในเบราว์เซอร์ ไม่มีการส่งข้อความออกภายนอก และไม่ได้ให้คำแนะนำทางกฎหมายใดๆ
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 4: Limitation & Legal Disclaimer */}
+          <div className="space-y-2">
+            <div className="flex items-center space-x-2 text-white font-bold">
+              <Info className="w-4 h-4 text-amber-400" />
+              <span>4. ข้อจำกัดความรับผิดชอบ (Disclaimer)</span>
             </div>
             <p className="text-slate-400 text-xs pl-6">
-              คุณมีอำนาจสิทธิ์ขาดในข้อมูลทั้งหมด 100% คุณสามารถลบข้อมูลคดี ล้างแคช หรือรีเซ็ตข้อมูลทั้งหมดได้ทุกเมื่อในเมนู **ตั้งค่าระบบ ➔ ล้างข้อมูล** โดยข้อมูลจะถูกทำลายถาวรจากอุปกรณ์ของคุณทันที
+              ระบบนี้มิได้ให้คำปรึกษาทางกฎหมาย และยังไม่ผ่านการตรวจสอบรับรองมาตรฐานด้านความปลอดภัยสารสนเทศหรือมรรยาทวิชาชีพโดยผู้เชี่ยวชาญ การนำไปพัฒนาต่อเพื่อใช้งานจริงจะต้องติดตั้งระบบจัดเก็บข้อมูลและมาตรการรักษาความปลอดภัยที่ได้มาตรฐานตามกฎหมายที่เกี่ยวข้องต่อไป
             </p>
           </div>
         </div>
@@ -131,14 +143,14 @@ export const PrivacyPolicyModal: React.FC<PrivacyPolicyModalProps> = ({
         {/* Footer */}
         <div className="px-6 py-4 border-t border-slate-800 bg-slate-950/80 flex items-center justify-between">
           <div className="flex items-center space-x-2 text-[11px] text-slate-400">
-            <ShieldCheck className="w-4 h-4 text-emerald-400" />
-            <span>รับรองมาตรฐาน Zero-Knowledge Client Architecture</span>
+            <Info className="w-4 h-4 text-amber-400" />
+            <span>ต้นแบบสาธิตสำหรับทดลองใช้งาน — ข้อมูลสมมติ</span>
           </div>
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition cursor-pointer shadow-md"
+            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition cursor-pointer shadow-md"
           >
-            รับทราบและเข้าใจนโยบาย
+            รับทราบและปิดหน้าต่าง
           </button>
         </div>
       </div>

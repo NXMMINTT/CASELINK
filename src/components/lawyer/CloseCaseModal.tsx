@@ -84,31 +84,9 @@ export const CloseCaseModal: React.FC<CloseCaseModalProps> = ({
       });
     }
 
-    // Generate AI Post-Case Analysis
+    // Generate Simulated Post-Case Analysis locally in browser (No external network call)
     if (autoGenerateAi) {
-      try {
-        const res = await fetch('/api/ai/post-case-analysis', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            caseData: caseItem,
-            courtVerdict: verdict,
-          }),
-        });
-        if (res.ok) {
-          const resData = await res.json();
-          if (resData.success && resData.data) {
-            // update in context
-            generatePostCaseAnalysis(caseItem.id);
-          } else {
-            generatePostCaseAnalysis(caseItem.id);
-          }
-        } else {
-          generatePostCaseAnalysis(caseItem.id);
-        }
-      } catch {
-        generatePostCaseAnalysis(caseItem.id);
-      }
+      generatePostCaseAnalysis(caseItem.id);
     }
 
     setIsSubmitting(false);
@@ -296,10 +274,10 @@ export const CloseCaseModal: React.FC<CloseCaseModalProps> = ({
             <label htmlFor="autoGenerateAi" className="text-xs text-indigo-950 font-medium cursor-pointer">
               <span className="font-bold flex items-center space-x-1 text-indigo-700">
                 <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
-                <span>ให้ AI วิเคราะห์สรุปเหตุการณ์หลังจบคดีและถอดบทเรียนทันที</span>
+                <span>สร้างสรุปบทเรียนและแนวปฏิบัติจำลองหลังจบคดี (ทำงานในเบราว์เซอร์)</span>
               </span>
               <span className="text-indigo-800/80 block mt-0.5 text-[11px]">
-                สกัดลำดับเหตุการณ์, จุดเปลี่ยนทางยุทธวิธี, บรรทัดฐานทางคดี และข้อพึงระวังสำหรับเป็นคลังความรู้
+                จำลองการสกัดข้อสังเกตและข้อพึงระวังในเครื่องของคุณ ไม่ส่งข้อมูลออกนอกเบราว์เซอร์ และไม่ใช่คำปรึกษาทางกฎหมาย
               </span>
             </label>
           </div>

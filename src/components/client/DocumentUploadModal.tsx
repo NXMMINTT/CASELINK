@@ -116,6 +116,14 @@ export const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
 
         {/* Content Body */}
         <div className="p-6">
+          {/* Top Demo Warning */}
+          <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900 flex items-start space-x-2">
+            <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <span className="font-bold">ข้อควรระวังสำหรับเดโม:</span> โปรดใช้ไฟล์สมมติเท่านั้น ระบบไม่เก็บไฟล์จริงและไม่ส่งข้อมูลออกจากเบราว์เซอร์
+            </div>
+          </div>
+
           {/* STEP 1: คุณต้องการส่งเอกสารอะไร? (Section 18) */}
           {step === 1 && (
             <div className="space-y-4">
@@ -204,6 +212,16 @@ export const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
           {/* STEP 3: PREVIEW & CONFIRM (Section 18) */}
           {step === 3 && (
             <div className="space-y-4">
+              {/* Honest Demo representation banner */}
+              <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900 leading-relaxed flex items-start space-x-2">
+                <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <span className="font-bold">ตัวอย่างการเลือกไฟล์ในเดโม:</span>{' '}
+                  ยังไม่ได้อัปโหลดหรือส่งไฟล์จริงให้ทนายความ ระบบจะจำลองบันทึกชื่อไฟล์ลงในเบราว์เซอร์เครื่องนี้เท่านั้น
+                  ไม่มีการจัดเก็บไฟล์จริงหรือส่งข้อมูลออกจากเบราว์เซอร์
+                </div>
+              </div>
+
               <div className="bg-emerald-50/60 border border-emerald-200 p-4 rounded-xl text-xs space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-slate-500">ชื่อไฟล์:</span>
@@ -279,13 +297,13 @@ export const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           ) : (
-            /* Button: “ส่งให้ทนาย” (Section 18) */
+            /* Button: “จำลองการส่งเอกสาร (เดโม)” (Requirement 2) */
             <button
               onClick={handleSendToLawyer}
               className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold rounded-xl shadow-md shadow-emerald-600/20 transition flex items-center space-x-1.5 cursor-pointer"
             >
               <Check className="w-4 h-4 stroke-[3]" />
-              <span>ส่งให้ทนาย</span>
+              <span>จำลองการส่งเอกสาร (เดโม)</span>
             </button>
           )}
         </div>

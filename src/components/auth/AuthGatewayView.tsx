@@ -1,116 +1,73 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext.tsx';
 import { UserRole } from '../../types.ts';
 import {
   Scale,
-  ShieldCheck,
-  Lock,
-  Eye,
-  EyeOff,
-  UserCheck,
   Briefcase,
   User,
   ArrowRight,
-  CheckCircle2,
-  AlertCircle,
-  Sparkles,
+  Layers,
   Smartphone,
   Cpu,
-  Layers,
   FileCheck,
+  Info,
+  RotateCcw,
+  CheckCircle2,
+  HardDrive,
+  UserPlus,
+  LogIn,
+  AlertTriangle,
 } from 'lucide-react';
 
 export const AuthGatewayView: React.FC = () => {
   const {
     isFirstTimeUser,
+    quickDemoLogin,
     registerUser,
     loginUser,
-    quickDemoLogin,
     setShowPrivacyModal,
+    resetDemoData,
   } = useApp();
 
-  // Primary tab state: default to 'register' if first time, else 'login'
-  const [activeTab, setActiveTab] = useState<'register' | 'login'>(
+  // If first time user -> starts on Register tab! Otherwise starts on Login tab!
+  const [activeTab, setActiveTab] = useState<'register' | 'login'>(() =>
     isFirstTimeUser ? 'register' : 'login'
   );
 
-  // Synchronize initial state if isFirstTimeUser updates
-  useEffect(() => {
-    setActiveTab(isFirstTimeUser ? 'register' : 'login');
-  }, [isFirstTimeUser]);
-
-  // Form states
+  // Form states for custom demo profile
   const [role, setRole] = useState<UserRole>('lawyer');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [lawyerLicenseId, setLawyerLicenseId] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [agreePrivacy, setAgreePrivacy] = useState(true);
-
-  // Status & Validation
+  const [agreed, setAgreed] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [resetToast, setResetToast] = useState(false);
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegisterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMsg(null);
-
     if (!name.trim()) {
-      setErrorMsg('กรุณากรอกชื่อ-นามสกุล หรือชื่อสำนักงานกฎหมาย');
+      setErrorMsg('กรุณากรอกชื่อสำหรับทดลองใช้งาน');
       return;
     }
-    if (!email.trim() || !email.includes('@')) {
-      setErrorMsg('กรุณาระบุอีเมลที่ถูกต้อง');
-      return;
+    const cleanEmail = email.trim() || `${name.trim().toLowerCase().replace(/\s+/g, '')}@demo.law`;
+    const res = registerUser(name.trim(), cleanEmail, 'demo1234', role);
+    if (!res.success) {
+      setErrorMsg(res.error || 'เกิดข้อผิดพลาดในการลงทะเบียน');
     }
-    if (password.length < 6) {
-      setErrorMsg('รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร');
-      return;
-    }
-    if (password !== confirmPassword) {
-      setErrorMsg('รหัสผ่านและการยืนยันรหัสผ่านไม่ตรงกัน');
-      return;
-    }
-    if (!agreePrivacy) {
-      setErrorMsg('กรุณายินยอมรับทราบนโยบายรักษาความลับวิชาชีพทนายความ (ป.อาญา ม.323)');
-      return;
-    }
-
-    setIsSubmitting(true);
-    setTimeout(() => {
-      const res = registerUser(
-        name.trim(),
-        email.trim(),
-        password,
-        role,
-        role === 'lawyer' ? lawyerLicenseId.trim() : undefined
-      );
-      setIsSubmitting(false);
-      if (!res.success) {
-        setErrorMsg(res.error || 'เกิดข้อผิดพลาดในการสร้างบัญชี');
-      }
-    }, 200);
   };
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLoginSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMsg(null);
-
-    if (!email.trim() || !password.trim()) {
-      setErrorMsg('กรุณาระบุอีเมลและรหัสผ่านเพื่อเข้าสู่ระบบ');
-      return;
+    if (role === 'lawyer') {
+      quickDemoLogin('lawyer');
+    } else {
+      quickDemoLogin('client');
     }
+  };
 
-    setIsSubmitting(true);
-    setTimeout(() => {
-      const res = loginUser(email.trim(), password);
-      setIsSubmitting(false);
-      if (!res.success) {
-        setErrorMsg(res.error || 'อีเมลหรือรหัสผ่านไม่ถูกต้อง');
-      }
-    }, 200);
+  const handleReset = () => {
+    resetDemoData();
+    setResetToast(true);
+    setTimeout(() => setResetToast(false), 2500);
   };
 
   return (
@@ -118,23 +75,43 @@ export const AuthGatewayView: React.FC = () => {
       {/* Background glow effects */}
       <div className="absolute top-[-15%] left-[-10%] w-[500px] h-[500px] rounded-full bg-indigo-600/15 blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-5%] w-[600px] h-[600px] rounded-full bg-purple-600/10 blur-[140px] pointer-events-none" />
-      <div className="absolute top-[40%] right-[30%] w-[350px] h-[350px] rounded-full bg-emerald-600/10 blur-[130px] pointer-events-none" />
 
-      {/* Top Bar Header */}
-      <header className="border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md px-6 py-4 relative z-10">
+      {/* Top Banner Notice */}
+      <div className="bg-amber-950/90 text-amber-200 border-b border-amber-800/80 px-4 py-2 text-xs font-medium z-20 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto w-full flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <span className="bg-amber-500/30 text-amber-300 border border-amber-500/50 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">
+              เดโมต้นแบบ
+            </span>
+            <span className="text-amber-100">
+              เว็บไซต์นี้เป็นเดโมสำหรับทดลองใช้งานบน GitHub Pages — ใช้ข้อมูลสมมติเท่านั้น ห้ามใส่ข้อมูลลูกความจริง
+            </span>
+          </div>
+          <button
+            onClick={() => setShowPrivacyModal(true)}
+            className="text-amber-300 hover:text-white underline text-[11px] cursor-pointer ml-3 flex-shrink-0"
+          >
+            ข้อจำกัดเดโม
+          </button>
+        </div>
+      </div>
+
+      {/* Top Bar Header matching Image 1 Logo */}
+      <header className="border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md px-4 sm:px-6 py-3.5 relative z-10">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
+          {/* Logo exactly matching Navbar & original brand */}
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/20 text-white">
-              <Scale className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-md shadow-indigo-950/40 text-white flex-shrink-0">
+              <Scale className="w-5 h-5 text-white" />
             </div>
             <div>
-              <span className="text-xl font-bold tracking-tight text-white flex items-center gap-1.5">
-                CASELINK
-                <span className="text-xs font-normal text-indigo-400 bg-indigo-950/80 border border-indigo-800/60 px-2 py-0.5 rounded-full">
+              <div className="flex items-center space-x-2">
+                <span className="text-xl font-bold tracking-tight text-white">CASELINK</span>
+                <span className="text-xs font-normal text-indigo-300 bg-indigo-950/80 border border-indigo-700/60 px-2 py-0.5 rounded-full">
                   Thai Legal Workspace
                 </span>
-              </span>
-              <p className="text-[11px] text-slate-400 hidden sm:block">
+              </div>
+              <p className="text-[11px] text-slate-400 hidden sm:block leading-tight mt-0.5">
                 ระบบแฟ้มคดีความ & ผู้ช่วยสื่อสารลูกความอัจฉริยะสำหรับทนายความไทย
               </p>
             </div>
@@ -143,41 +120,38 @@ export const AuthGatewayView: React.FC = () => {
           <div className="flex items-center space-x-3 text-xs text-slate-400">
             <button
               onClick={() => setShowPrivacyModal(true)}
-              className="flex items-center space-x-1.5 text-emerald-400 hover:text-emerald-300 transition cursor-pointer bg-emerald-950/50 border border-emerald-800/50 px-3 py-1.5 rounded-lg"
+              className="flex items-center space-x-1.5 text-slate-300 hover:text-white transition cursor-pointer bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-lg"
             >
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="hidden sm:inline">การรับรอง:</span>
-              <span className="font-semibold">Zero-Knowledge Vault</span>
+              <Info className="w-3.5 h-3.5 text-indigo-400" />
+              <span>คำชี้แจงเดโม & ข้อจำกัด</span>
             </button>
           </div>
         </div>
       </header>
 
-      {/* Main Content: 2-Column Desktop Grid following Figma UI Design Principles */}
+      {/* Main Content */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12 flex items-center relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center w-full">
           
-          {/* Left Column: Product Value & Design Principles Showcase (7 cols on desktop) */}
+          {/* Left Column: Prototype Overview & Features (7 cols on desktop) */}
           <div className="lg:col-span-6 xl:col-span-7 space-y-6 text-left">
-            {/* Visual Hierarchy: Category Kicker */}
             <div className="inline-flex items-center space-x-2 text-xs font-semibold text-indigo-400">
               <span className="w-2 h-2 rounded-full bg-indigo-400 animate-ping" />
-              <span>มาตรฐานความปลอดภัยสูงสุดเพื่อวิชาชีพกฎหมายไทย</span>
+              <span>ต้นแบบระบบจัดการคดีความ (Static Prototype)</span>
               <span className="text-slate-600">·</span>
-              <span className="text-slate-400">ป.อาญา ม.323 & PDPA</span>
+              <span className="text-slate-400">ทดลองใช้งานฟรีบนเบราว์เซอร์</span>
             </div>
 
-            {/* Dominant Headline with Balanced Typography */}
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-[1.18]">
-              จัดการคดีความ <span className="bg-gradient-to-r from-indigo-400 via-purple-300 to-sky-400 bg-clip-text text-transparent">เห็นภาพรวมทั้งสำนวน</span> ปลอดภัยบนเครื่องของคุณ
+              ทดลองใช้งาน <span className="bg-gradient-to-r from-indigo-400 via-purple-300 to-sky-400 bg-clip-text text-transparent">CASELINK เดโม</span> จัดการคดีความแบบครบวงจร
             </h1>
 
             <p className="text-slate-300 text-sm sm:text-base leading-relaxed max-w-2xl font-normal">
-              ผสานพลังผังคดีแบบ Blueprint Graph, การสื่อสารลูกความอัตโนมัติผ่าน LINE Official, 
-              และการเตรียมตัวว่าความในศาลอย่างเป็นระบบ — ภายใต้สถาปัตยกรรม <strong className="text-emerald-400 font-semibold">Zero-Knowledge</strong> ที่ไม่มีการเก็บข้อมูลความลับของลูกความบนเซิร์ฟเวอร์ส่วนกลาง
+              สัมผัสประสบการณ์การทำงานร่วมกันระหว่างทนายความและลูกความผ่านผังคดีแบบ Blueprint Graph, 
+              การจำลองแจ้งเตือนผ่าน LINE Official, และการเตรียมตัวว่าความในศาลด้วยข้อมูลสมมติที่ปลอดภัยในเครื่องของคุณ
             </p>
 
-            {/* 4 Feature Pillars (Figma Card Architecture with single-elevation depth) */}
+            {/* 4 Feature Pillars */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2">
               <div className="p-4 rounded-xl bg-slate-900/70 border border-slate-800 hover:border-slate-700/80 transition group">
                 <div className="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center mb-2.5 group-hover:scale-105 transition">
@@ -185,7 +159,7 @@ export const AuthGatewayView: React.FC = () => {
                 </div>
                 <h3 className="text-sm font-bold text-white mb-1">Interactive Blueprint Canvas</h3>
                 <p className="text-xs text-slate-400 leading-relaxed">
-                  เชื่อมโยงข้อเท็จจริง พยาน เอกสาร และข้อกฎหมายเป็นเส้นสายจำสี ไม่ซ้อนทับ
+                  ผังคดีเชื่อมโยงข้อเท็จจริง พยาน เอกสาร และข้อกฎหมายเป็นเส้นสายจำสี ไม่ซ้อนทับ
                 </p>
               </div>
 
@@ -193,9 +167,9 @@ export const AuthGatewayView: React.FC = () => {
                 <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-2.5 group-hover:scale-105 transition">
                   <Smartphone className="w-4 h-4" />
                 </div>
-                <h3 className="text-sm font-bold text-white mb-1">LINE Official Automation</h3>
+                <h3 className="text-sm font-bold text-white mb-1">LINE Automation (โหมดจำลอง)</h3>
                 <p className="text-xs text-slate-400 leading-relaxed">
-                  แจ้งเตือนวันนัดศาล สรุปคำพิพากษา และทวงเอกสารผ่าน LINE OA ทนายความ
+                  ทดลองพรีวิว Flex Message แจ้งวันนัดศาลและทวงเอกสารในหน้าต่างจำลองสมาร์ตโฟน
                 </p>
               </div>
 
@@ -203,9 +177,9 @@ export const AuthGatewayView: React.FC = () => {
                 <div className="w-8 h-8 rounded-lg bg-sky-500/10 text-sky-400 flex items-center justify-center mb-2.5 group-hover:scale-105 transition">
                   <Cpu className="w-4 h-4" />
                 </div>
-                <h3 className="text-sm font-bold text-white mb-1">AI Fact-Structuring & Audit</h3>
+                <h3 className="text-sm font-bold text-white mb-1">การจัดระเบียบคดี (จำลองในเครื่อง)</h3>
                 <p className="text-xs text-slate-400 leading-relaxed">
-                  สกัดข้อเท็จจริงด้วย Gemini JSON Schema โดยลบเลขบัตรและเบอร์โทร (PII) ล่วงหน้า
+                  จำลองการแยกไทม์ไลน์และพยานในเบราว์เซอร์ โดยไม่ส่งข้อมูลออกนอกเครื่อง
                 </p>
               </div>
 
@@ -215,39 +189,40 @@ export const AuthGatewayView: React.FC = () => {
                 </div>
                 <h3 className="text-sm font-bold text-white mb-1">Courtroom Arsenal & Speech</h3>
                 <p className="text-xs text-slate-400 leading-relaxed">
-                  เตรียมประเด็นถามพยาน คำนวณเบี้ยปรับดอกเบี้ย 5% และเช็กลิสต์ยื่นศาล
+                  เตรียมประเด็นถามพยาน คำนวณเบี้ยปรับดอกเบี้ย 5% และเช็กลิสต์ตรวจเอกสาร
                 </p>
               </div>
             </div>
 
-            {/* Compliance Guarantee Bar */}
+            {/* Storage Notice */}
             <div className="pt-2 flex items-center space-x-2 text-xs text-slate-400">
-              <ShieldCheck className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+              <HardDrive className="w-4 h-4 text-indigo-400 flex-shrink-0" />
               <span>
-                ความลับวิชาชีพได้รับการคุ้มครองตาม <strong className="text-slate-200">มรรยาททนายความ พ.ศ. 2529 ข้อ 14</strong> และ <strong className="text-slate-200">ประมวลกฎหมายอาญา มาตรา 323</strong>
+                ข้อมูลตัวอย่างถูกบันทึกในเบราว์เซอร์เครื่องนี้เท่านั้น (LocalStorage) ไม่มีการซิงก์ไปเซิร์ฟเวอร์ภายนอก
               </span>
             </div>
           </div>
 
-          {/* Right Column: High-Fidelity Authentication Card (5 cols on desktop) */}
+          {/* Right Column: Register / Login Tabs & One-Click Demo Role Cards */}
           <div className="lg:col-span-6 xl:col-span-5 w-full">
             <div className="bg-slate-900/90 border border-slate-800/90 rounded-2xl shadow-2xl backdrop-blur-xl p-6 sm:p-8 relative">
-              {/* Segmented Control Tabs following Figma Affordance Principle */}
-              <div className="flex p-1 bg-slate-950/80 border border-slate-800 rounded-xl mb-6">
+              
+              {/* Tab Selector: Register vs Login */}
+              <div className="flex rounded-xl bg-slate-800/90 p-1 mb-6 border border-slate-700/70">
                 <button
                   type="button"
                   onClick={() => {
                     setActiveTab('register');
                     setErrorMsg(null);
                   }}
-                  className={`flex-1 py-2.5 text-xs sm:text-sm font-bold rounded-lg transition-all flex items-center justify-center space-x-1.5 cursor-pointer ${
+                  className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition cursor-pointer flex items-center justify-center space-x-1.5 ${
                     activeTab === 'register'
-                      ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-md'
-                      : 'text-slate-400 hover:text-slate-200'
+                      ? 'bg-indigo-600 text-white shadow-sm'
+                      : 'text-slate-400 hover:text-white'
                   }`}
                 >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>ลงทะเบียนใช้งานใหม่</span>
+                  <UserPlus className="w-3.5 h-3.5" />
+                  <span>สร้างบัญชีจำลอง (Register)</span>
                 </button>
                 <button
                   type="button"
@@ -255,298 +230,228 @@ export const AuthGatewayView: React.FC = () => {
                     setActiveTab('login');
                     setErrorMsg(null);
                   }}
-                  className={`flex-1 py-2.5 text-xs sm:text-sm font-bold rounded-lg transition-all flex items-center justify-center space-x-1.5 cursor-pointer ${
+                  className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition cursor-pointer flex items-center justify-center space-x-1.5 ${
                     activeTab === 'login'
-                      ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-md'
-                      : 'text-slate-400 hover:text-slate-200'
+                      ? 'bg-indigo-600 text-white shadow-sm'
+                      : 'text-slate-400 hover:text-white'
                   }`}
                 >
-                  <Lock className="w-3.5 h-3.5" />
-                  <span>เข้าสู่ระบบ</span>
+                  <LogIn className="w-3.5 h-3.5" />
+                  <span>เข้าสู่ระบบ (Login)</span>
                 </button>
               </div>
 
-              {/* Status or Error Banner */}
-              {errorMsg && (
-                <div className="mb-5 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-start space-x-2 animate-in fade-in">
-                  <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-rose-400" />
-                  <span className="font-medium leading-relaxed">{errorMsg}</span>
+              {/* Title Header */}
+              <div className="text-left mb-5">
+                <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+                  {activeTab === 'register' ? 'สมัครทดลองใช้งานเดโม' : 'เข้าสู่ระบบทดลองใช้งาน'}
+                </h2>
+                <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                  {activeTab === 'register'
+                    ? 'สร้างโปรไฟล์จำลองในเครื่อง หรือกดปุ่มบทบาทด้านล่างเพื่อเข้าทดลองทันที'
+                    : 'เลือกบทบาทที่ต้องการเพื่อเข้าสู่หน้าจอทำงานจำลองทันที'}
+                </p>
+              </div>
+
+              {/* 1-Click Quick Demo Role Access Buttons */}
+              <div className="space-y-3 mb-6">
+                <div className="text-[11px] font-semibold text-indigo-300 uppercase tracking-wider text-left">
+                  ⚡ ทางลัด: เข้าทดลองทันที 1 คลิก
                 </div>
-              )}
 
-              {/* Tab 1: REGISTER FORM */}
-              {activeTab === 'register' && (
-                <form onSubmit={handleRegister} className="space-y-4 text-left">
-                  {/* Role Selector Card */}
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                      บทบาทผู้ใช้งาน (เลือกเพื่อปรับแต่งหน้าจอที่เหมาะสม)
-                    </label>
-                    <div className="grid grid-cols-2 gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setRole('lawyer')}
-                        className={`p-3 rounded-xl border text-left transition cursor-pointer flex flex-col justify-between ${
-                          role === 'lawyer'
-                            ? 'bg-indigo-950/60 border-indigo-500 text-white shadow-inner'
-                            : 'bg-slate-950/40 border-slate-800 text-slate-400 hover:border-slate-700'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between mb-1">
-                          <Briefcase className={`w-4 h-4 ${role === 'lawyer' ? 'text-indigo-400' : 'text-slate-500'}`} />
-                          {role === 'lawyer' && <CheckCircle2 className="w-3.5 h-3.5 text-indigo-400" />}
-                        </div>
-                        <div className="font-bold text-xs">ทนายความ / นิติกร</div>
-                        <div className="text-[10px] text-slate-400 mt-0.5 leading-tight">บริหารสำนวนคดี วางยุทธวิธี</div>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => setRole('client')}
-                        className={`p-3 rounded-xl border text-left transition cursor-pointer flex flex-col justify-between ${
-                          role === 'client'
-                            ? 'bg-emerald-950/60 border-emerald-500 text-white shadow-inner'
-                            : 'bg-slate-950/40 border-slate-800 text-slate-400 hover:border-slate-700'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between mb-1">
-                          <User className={`w-4 h-4 ${role === 'client' ? 'text-emerald-400' : 'text-slate-500'}`} />
-                          {role === 'client' && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />}
-                        </div>
-                        <div className="font-bold text-xs">ลูกความ / ผู้ว่าจ้าง</div>
-                        <div className="text-[10px] text-slate-400 mt-0.5 leading-tight">ติดตามคดี ส่งเอกสาร นัดหมาย</div>
-                      </button>
+                {/* Role 1: Lawyer */}
+                <button
+                  type="button"
+                  onClick={() => quickDemoLogin('lawyer')}
+                  className="w-full p-3.5 rounded-xl border border-indigo-500/40 bg-indigo-950/30 hover:border-indigo-500/80 hover:bg-indigo-950/50 transition text-left flex items-center justify-between cursor-pointer group"
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="w-9 h-9 rounded-lg bg-indigo-600/20 text-indigo-400 flex items-center justify-center border border-indigo-500/30 group-hover:scale-105 transition-transform">
+                      <Briefcase className="w-4 h-4" />
                     </div>
-                  </div>
-
-                  {/* Name field */}
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-300 mb-1">
-                      {role === 'lawyer' ? 'ชื่อ-นามสกุล ทนายความ หรือ สำนักงาน' : 'ชื่อ-นามสกุล ลูกความ'} <span className="text-rose-400">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder={role === 'lawyer' ? 'เช่น ทนายวิชัย หรือ สำนักงานกฎหมายธนกิจ' : 'เช่น นายสมชาย มั่นคง'}
-                      required
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/70 border border-slate-700/80 text-white text-xs sm:text-sm placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
-                    />
-                  </div>
-
-                  {/* Email field */}
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-300 mb-1">
-                      อีเมลสำหรับเข้าใช้งาน <span className="text-rose-400">*</span>
-                    </label>
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="lawyer@example.com"
-                      required
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/70 border border-slate-700/80 text-white text-xs sm:text-sm placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
-                    />
-                  </div>
-
-                  {/* Optional Lawyer License ID */}
-                  {role === 'lawyer' && (
                     <div>
-                      <div className="flex items-center justify-between mb-1">
-                        <label className="text-xs font-semibold text-slate-300">
-                          เลขที่ใบอนุญาตว่าความ (ถ้ามี)
-                        </label>
-                        <span className="text-[10px] text-slate-500">สภาทนายความ</span>
+                      <div className="font-bold text-xs sm:text-sm text-white flex items-center space-x-1.5">
+                        <span>ทดลองเป็น: ทนายความ</span>
+                        <span className="text-[10px] text-indigo-300 bg-indigo-900/60 px-1.5 py-0.5 rounded font-normal">
+                          สมชาย รัตนกุล
+                        </span>
                       </div>
-                      <input
-                        type="text"
-                        value={lawyerLicenseId}
-                        onChange={(e) => setLawyerLicenseId(e.target.value)}
-                        placeholder="เช่น 1425/2562"
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/70 border border-slate-700/80 text-white text-xs sm:text-sm placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
-                      />
+                      <div className="text-[11px] text-slate-400 mt-0.5">
+                        บริหารสำนวน, ผัง Mind Map, เตรียมตัวว่าความ
+                      </div>
                     </div>
-                  )}
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-indigo-400 group-hover:translate-x-1 transition-transform" />
+                </button>
 
-                  {/* Password & Confirm Password */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {/* Role 2: Client */}
+                <button
+                  type="button"
+                  onClick={() => quickDemoLogin('client')}
+                  className="w-full p-3.5 rounded-xl border border-emerald-500/40 bg-emerald-950/30 hover:border-emerald-500/80 hover:bg-emerald-950/50 transition text-left flex items-center justify-between cursor-pointer group"
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="w-9 h-9 rounded-lg bg-emerald-600/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30 group-hover:scale-105 transition-transform">
+                      <User className="w-4 h-4" />
+                    </div>
                     <div>
-                      <label className="block text-xs font-semibold text-slate-300 mb-1">
-                        รหัสผ่าน <span className="text-rose-400">*</span>
-                      </label>
-                      <div className="relative">
-                        <input
-                          type={showPassword ? 'text' : 'password'}
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          placeholder="อย่างน้อย 6 ตัวอักษร"
-                          required
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/70 border border-slate-700/80 text-white text-xs sm:text-sm placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition pr-9"
-                        />
+                      <div className="font-bold text-xs sm:text-sm text-white flex items-center space-x-1.5">
+                        <span>ทดลองเป็น: ลูกความ</span>
+                        <span className="text-[10px] text-emerald-300 bg-emerald-900/60 px-1.5 py-0.5 rounded font-normal">
+                          สมชาย มั่นคง
+                        </span>
+                      </div>
+                      <div className="text-[11px] text-slate-400 mt-0.5">
+                        ติดตามความคืบหน้า, จำลองส่งเอกสารพยาน
+                      </div>
+                    </div>
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-emerald-400 group-hover:translate-x-1 transition-transform" />
+                </button>
+              </div>
+
+              {/* Optional Custom Form */}
+              <div className="pt-4 border-t border-slate-800/80 text-left">
+                <div className="text-[11px] font-semibold text-slate-400 mb-3">
+                  {activeTab === 'register' ? 'หรือสร้างโปรไฟล์ตัวอย่างของท่านเอง:' : 'หรือเข้าสู่ระบบด้วยชื่ออื่น:'}
+                </div>
+
+                {activeTab === 'register' ? (
+                  <form onSubmit={handleRegisterSubmit} className="space-y-3.5 text-xs">
+                    <div>
+                      <label className="block text-slate-300 mb-1 font-medium">บทบาทการใช้งาน</label>
+                      <div className="grid grid-cols-2 gap-2">
                         <button
                           type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 cursor-pointer"
+                          onClick={() => setRole('lawyer')}
+                          className={`py-2 px-3 rounded-lg border text-center font-medium transition cursor-pointer flex items-center justify-center space-x-1.5 ${
+                            role === 'lawyer'
+                              ? 'border-indigo-500 bg-indigo-600/20 text-white font-bold'
+                              : 'border-slate-700 bg-slate-800/50 text-slate-400 hover:text-white'
+                          }`}
                         >
-                          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          <Briefcase className="w-3.5 h-3.5" />
+                          <span>ทนายความ</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setRole('client')}
+                          className={`py-2 px-3 rounded-lg border text-center font-medium transition cursor-pointer flex items-center justify-center space-x-1.5 ${
+                            role === 'client'
+                              ? 'border-emerald-500 bg-emerald-600/20 text-white font-bold'
+                              : 'border-slate-700 bg-slate-800/50 text-slate-400 hover:text-white'
+                          }`}
+                        >
+                          <User className="w-3.5 h-3.5" />
+                          <span>ลูกความ</span>
                         </button>
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold text-slate-300 mb-1">
-                        ยืนยันรหัสผ่าน <span className="text-rose-400">*</span>
-                      </label>
+                      <label className="block text-slate-300 mb-1 font-medium">ชื่อ-นามสกุล สำหรับแสดงในเดโม</label>
                       <input
-                        type={showPassword ? 'text' : 'password'}
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        placeholder="กรอกรหัสผ่านซ้ำ"
-                        required
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/70 border border-slate-700/80 text-white text-xs sm:text-sm placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
+                        type="text"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="เช่น ทนายสมเกียรติ หรือ คุณวิภาดา"
+                        className="w-full px-3 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
                       />
                     </div>
-                  </div>
 
-                  {/* Ethics & Privacy Policy Consent Checkbox */}
-                  <div className="pt-1">
-                    <label className="flex items-start space-x-2.5 cursor-pointer">
+                    <div className="flex items-start space-x-2 pt-1">
                       <input
                         type="checkbox"
-                        checked={agreePrivacy}
-                        onChange={(e) => setAgreePrivacy(e.target.checked)}
-                        className="mt-1 rounded bg-slate-900 border-slate-700 text-indigo-600 focus:ring-indigo-500 cursor-pointer w-4 h-4 flex-shrink-0"
+                        id="agreeTerms"
+                        checked={agreed}
+                        onChange={(e) => setAgreed(e.target.checked)}
+                        className="mt-0.5 rounded text-indigo-600 focus:ring-indigo-500 cursor-pointer"
                       />
-                      <span className="text-xs text-slate-300 leading-snug">
-                        ข้าพเจ้ายินยอมรับทราบนโยบายรักษาความลับวิชาชีพตาม{' '}
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            setShowPrivacyModal(true);
-                          }}
-                          className="text-indigo-400 hover:underline font-semibold"
-                        >
-                          ป.อาญา ม.323 และมาตรการ Zero-Knowledge Privacy
-                        </button>{' '}
-                        โดยข้อมูลทั้งหมดจะถูกเก็บรักษาไว้บนเครื่องของผู้ใช้งานเท่านั้น
-                      </span>
-                    </label>
-                  </div>
-
-                  {/* Submit Button */}
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-600 hover:from-indigo-500 to-violet-600 hover:to-violet-500 text-white text-sm font-bold shadow-lg shadow-indigo-600/30 transition transform active:scale-[0.99] flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-50"
-                  >
-                    {isSubmitting ? (
-                      <span>กำลังสร้างบัญชีและเข้ารหัสข้อมูล...</span>
-                    ) : (
-                      <>
-                        <span>สร้างบัญชีและเข้าสู่ระบบทันที</span>
-                        <ArrowRight className="w-4 h-4" />
-                      </>
-                    )}
-                  </button>
-                </form>
-              )}
-
-              {/* Tab 2: LOGIN FORM */}
-              {activeTab === 'login' && (
-                <form onSubmit={handleLogin} className="space-y-4 text-left">
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-300 mb-1">
-                      อีเมลบัญชีผู้ใช้
-                    </label>
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="lawyer@example.com หรืออีเมลที่ลงทะเบียนไว้"
-                      required
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/70 border border-slate-700/80 text-white text-xs sm:text-sm placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
-                    />
-                  </div>
-
-                  <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <label className="text-xs font-semibold text-slate-300">
-                        รหัสผ่าน
+                      <label htmlFor="agreeTerms" className="text-[11px] text-slate-400 leading-tight cursor-pointer">
+                        รับทราบว่าเป็นระบบเดโม ไม่เก็บรหัสผ่านจริง และจะใช้ข้อมูลสมมติเท่านั้น
                       </label>
                     </div>
-                    <div className="relative">
-                      <input
-                        type={showPassword ? 'text' : 'password'}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="กรอกรหัสผ่านของคุณ"
-                        required
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/70 border border-slate-700/80 text-white text-xs sm:text-sm placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition pr-9"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 cursor-pointer"
-                      >
-                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </button>
-                    </div>
-                  </div>
 
-                  {/* Submit Button */}
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-600 hover:from-indigo-500 to-violet-600 hover:to-violet-500 text-white text-sm font-bold shadow-lg shadow-indigo-600/30 transition transform active:scale-[0.99] flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-50"
-                  >
-                    {isSubmitting ? (
-                      <span>กำลังตรวจสอบข้อมูล...</span>
-                    ) : (
-                      <>
-                        <span>เข้าสู่ระบบ</span>
-                        <ArrowRight className="w-4 h-4" />
-                      </>
+                    {errorMsg && (
+                      <div className="p-2 rounded-lg bg-red-950/50 border border-red-800 text-red-300 text-[11px]">
+                        {errorMsg}
+                      </div>
                     )}
-                  </button>
-                </form>
-              )}
 
-              {/* Instant Demo Access (Affordance & Fitts's Law principle: fast access without typing) */}
-              <div className="mt-6 pt-5 border-t border-slate-800/80">
-                <div className="text-center mb-3">
-                  <span className="text-[11px] font-medium text-slate-400 bg-slate-900 px-2 py-0.5">
-                    หรือทดลองประเมินระบบทันที (ไม่ต้องพิมพ์ข้อมูล):
-                  </span>
-                </div>
-                <div className="grid grid-cols-2 gap-2.5">
-                  <button
-                    type="button"
-                    onClick={() => quickDemoLogin('lawyer')}
-                    className="p-2.5 rounded-xl bg-slate-950/80 hover:bg-indigo-950/40 border border-slate-800 hover:border-indigo-600/60 text-slate-300 hover:text-white transition flex items-center justify-center space-x-2 text-xs font-semibold cursor-pointer group"
-                  >
-                    <Briefcase className="w-3.5 h-3.5 text-indigo-400 group-hover:scale-110 transition" />
-                    <span>เข้าทดลอง: ทนายความ</span>
-                  </button>
+                    <button
+                      type="submit"
+                      disabled={!agreed}
+                      className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition cursor-pointer disabled:opacity-50 text-xs shadow-md shadow-indigo-600/20"
+                    >
+                      สร้างโปรไฟล์และเริ่มทดลองใช้งาน
+                    </button>
+                  </form>
+                ) : (
+                  <form onSubmit={handleLoginSubmit} className="space-y-3.5 text-xs">
+                    <div>
+                      <label className="block text-slate-300 mb-1 font-medium">เลือกมุมมองที่ต้องการเข้าใช้งาน</label>
+                      <div className="grid grid-cols-2 gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setRole('lawyer')}
+                          className={`py-2 px-3 rounded-lg border text-center font-medium transition cursor-pointer flex items-center justify-center space-x-1.5 ${
+                            role === 'lawyer'
+                              ? 'border-indigo-500 bg-indigo-600/20 text-white font-bold'
+                              : 'border-slate-700 bg-slate-800/50 text-slate-400 hover:text-white'
+                          }`}
+                        >
+                          <Briefcase className="w-3.5 h-3.5" />
+                          <span>มุมมองทนายความ</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setRole('client')}
+                          className={`py-2 px-3 rounded-lg border text-center font-medium transition cursor-pointer flex items-center justify-center space-x-1.5 ${
+                            role === 'client'
+                              ? 'border-emerald-500 bg-emerald-600/20 text-white font-bold'
+                              : 'border-slate-700 bg-slate-800/50 text-slate-400 hover:text-white'
+                          }`}
+                        >
+                          <User className="w-3.5 h-3.5" />
+                          <span>มุมมองลูกความ</span>
+                        </button>
+                      </div>
+                    </div>
 
-                  <button
-                    type="button"
-                    onClick={() => quickDemoLogin('client')}
-                    className="p-2.5 rounded-xl bg-slate-950/80 hover:bg-emerald-950/40 border border-slate-800 hover:border-emerald-600/60 text-slate-300 hover:text-white transition flex items-center justify-center space-x-2 text-xs font-semibold cursor-pointer group"
-                  >
-                    <User className="w-3.5 h-3.5 text-emerald-400 group-hover:scale-110 transition" />
-                    <span>เข้าทดลอง: ลูกความ</span>
-                  </button>
-                </div>
+                    <button
+                      type="submit"
+                      className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition cursor-pointer text-xs shadow-md shadow-indigo-600/20"
+                    >
+                      เข้าสู่ระบบเดโมในมุมมอง{role === 'lawyer' ? 'ทนายความ' : 'ลูกความ'}
+                    </button>
+                  </form>
+                )}
               </div>
 
-              {/* Zero-Knowledge Privacy Guarantee Microcopy */}
-              <div className="mt-5 text-center">
-                <p className="text-[11px] text-slate-400 flex items-center justify-center space-x-1.5">
-                  <Lock className="w-3 h-3 text-emerald-400 inline" />
-                  <span>ระบบบันทึกแบบ Local Storage Vault ไม่มีการส่งข้อมูลสำนวนคดีสู่ Cloud</span>
+              {/* Reset Demo Option & Honest Disclaimer */}
+              <div className="mt-5 pt-4 border-t border-slate-800/80 text-left space-y-2">
+                <div className="text-xs text-slate-400 flex items-center justify-between">
+                  <span>ต้องการล้างข้อมูลที่เคยแก้ไขในเดโม?</span>
+                  <button
+                    type="button"
+                    onClick={handleReset}
+                    className="text-indigo-400 hover:text-indigo-300 font-semibold flex items-center space-x-1 cursor-pointer transition text-xs"
+                  >
+                    <RotateCcw className="w-3 h-3" />
+                    <span>คืนค่าข้อมูลเริ่มต้น</span>
+                  </button>
+                </div>
+                {resetToast && (
+                  <div className="text-[11px] text-emerald-400 bg-emerald-950/60 p-2 rounded-lg border border-emerald-800 flex items-center space-x-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>คืนค่าข้อมูลตัวอย่างและเซสชันทั้งหมดเป็นค่าเริ่มต้นแล้ว</span>
+                  </div>
+                )}
+                <p className="text-[11px] text-slate-500 leading-relaxed">
+                  * การสลับบทบาทหรือเข้าสู่ระบบนี้เป็นเพียงการเปลี่ยนมุมมองทดสอบเดโม ไม่ใช่ระบบรักษาความปลอดภัยหรือควบคุมสิทธิ์จริง
                 </p>
               </div>
+
             </div>
           </div>
 
@@ -557,19 +462,17 @@ export const AuthGatewayView: React.FC = () => {
       <footer className="border-t border-slate-800/80 py-4 px-6 text-center text-xs text-slate-400 relative z-10">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
           <div>
-            CASELINK © 2026 — นวัตกรรมผู้ช่วยทนายความไทยเพื่อความยุติธรรมที่รวดเร็วและปลอดภัย
+            CASELINK © 2026 — เดโมต้นแบบระบบจัดการคดีความ (Static Prototype บน GitHub Pages)
           </div>
           <div className="flex items-center space-x-4">
             <button
               onClick={() => setShowPrivacyModal(true)}
               className="hover:text-indigo-400 transition cursor-pointer"
             >
-              นโยบายความเป็นส่วนตัว & มรรยาทวิชาชีพ
+              คำชี้แจงความเป็นส่วนตัว & ข้อจำกัดเดโม
             </button>
             <span>·</span>
-            <span>ป.อาญา ม.323</span>
-            <span>·</span>
-            <span>PDPA Compliant</span>
+            <span>ห้ามใช้ข้อมูลลูกความจริง</span>
           </div>
         </div>
       </footer>

@@ -17,6 +17,7 @@ import {
   ExternalLink,
   Scale,
   LogOut,
+  AlertTriangle,
 } from 'lucide-react';
 
 interface SettingsModalProps {
@@ -297,45 +298,39 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
           {activeTab === 'privacy' && (
             <div className="space-y-4 text-xs sm:text-sm">
-              <div className="p-4 rounded-xl bg-gradient-to-r from-emerald-950 to-slate-900 border border-emerald-700/60 text-white space-y-2">
+              <div className="p-4 rounded-xl bg-amber-950/80 border border-amber-700/60 text-white space-y-2">
                 <div className="flex items-center space-x-2">
-                  <ShieldCheck className="w-5 h-5 text-emerald-400" />
-                  <span className="font-bold text-sm">คำรับรองสถาปัตยกรรม Zero-Knowledge Vault</span>
+                  <ShieldCheck className="w-5 h-5 text-amber-400" />
+                  <span className="font-bold text-sm">คำชี้แจงความเป็นส่วนตัว & ข้อจำกัดของระบบเดโม</span>
                 </div>
-                <p className="text-xs text-emerald-200/90 leading-relaxed">
-                  CASELINK ไม่มีการเก็บข้อมูลสำนวนคดี พยานหลักฐาน สัญญา หรือคำให้การบนเซิร์ฟเวอร์ส่วนกลาง (Server-less Data Retention) ข้อมูลทั้งหมดจะถูกบันทึกในหน่วยความจำของอุปกรณ์ที่คุณใช้งานเท่านั้น
+                <p className="text-xs text-amber-200/90 leading-relaxed">
+                  CASELINK เวอร์ชันนี้เป็นต้นแบบเดโมสำหรับทดลองใช้งาน (Static Prototype บน GitHub Pages) ข้อมูลตัวอย่างทั้งหมดถูกเก็บไว้ในหน่วยความจำชั่วคราวของเบราว์เซอร์ (Browser LocalStorage) ในอุปกรณ์นี้เท่านั้น ไม่มีการส่งข้อมูลไปยังเซิร์ฟเวอร์ส่วนกลาง
                 </p>
               </div>
 
-              <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-3">
-                <div className="font-bold text-slate-900 flex items-center space-x-2">
-                  <Scale className="w-4 h-4 text-purple-600" />
-                  <span>การคุ้มครองตามกฎหมายและมรรยาททนายความไทย</span>
+              <div className="p-4 rounded-xl border border-amber-200 bg-amber-50/50 space-y-2.5 text-amber-950">
+                <div className="font-bold flex items-center space-x-2">
+                  <AlertTriangle className="w-4 h-4 text-amber-600" />
+                  <span>คำเตือนการใช้งาน: ใช้ข้อมูลสมมติเท่านั้น</span>
                 </div>
-                <div className="space-y-2 text-xs text-slate-600 leading-relaxed">
-                  <div>
-                    <strong>• มรรยาททนายความ พ.ศ. 2529 ข้อ 14:</strong> คุ้มครองความลับของลูกความ (Attorney-Client Privilege) ป้องกันความเสี่ยงจากการถูกแฮกหรือข้อมูลรั่วไหลผ่านคลาวด์
-                  </div>
-                  <div>
-                    <strong>• ประมวลกฎหมายอาญา มาตรา 323:</strong> คุ้มครองความลับในทางวิชาชีพ ปราศจากความเสี่ยงทางอาญา
-                  </div>
-                  <div>
-                    <strong>• พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562 (PDPA):</strong> คุณเป็นผู้ควบคุมข้อมูล (Data Controller) แต่เพียงผู้เดียว มีสิทธิ์ส่งออกหรือทำลายข้อมูลได้ทันที
-                  </div>
+                <div className="space-y-1.5 text-xs text-amber-900/90 leading-relaxed">
+                  <div>• ห้ามนำเข้าข้อมูลลูกความจริง เอกสารสัญญาจริง หรือความลับในคดีความลงในระบบเดโมนี้</div>
+                  <div>• ฟังก์ชัน AI, LINE และการเลือกไฟล์ เป็นการจำลองผลลัพธ์ในเบราว์เซอร์เพื่อแสดงแนวคิด UI เท่านั้น</div>
+                  <div>• ระบบนี้ยังไม่ผ่านการรับรองความปลอดภัยสำหรับใช้งานจริง และไม่ได้ให้คำปรึกษาทางกฎหมาย</div>
                 </div>
               </div>
 
               <div className="p-4 rounded-xl border border-indigo-100 bg-indigo-50/50 flex items-center justify-between">
                 <div>
-                  <div className="font-bold text-indigo-950 text-xs">อ่านคำรับรองและนโยบายฉบับเต็ม</div>
-                  <div className="text-[11px] text-indigo-700">ตรวจสอบรายละเอียดเงื่อนไขความปลอดภัยและข้อกำหนดสิทธิ</div>
+                  <div className="font-bold text-indigo-950 text-xs">อ่านคำชี้แจงความเป็นส่วนตัวและข้อจำกัดฉบับเต็ม</div>
+                  <div className="text-[11px] text-indigo-700">ตรวจสอบรายละเอียดเงื่อนไขและข้อจำกัดของระบบเดโม</div>
                 </div>
                 <button
                   type="button"
                   onClick={() => setShowPrivacyModal(true)}
                   className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold transition cursor-pointer shadow-xs"
                 >
-                  เปิดอ่านนโยบาย
+                  เปิดอ่านคำชี้แจง
                 </button>
               </div>
             </div>
