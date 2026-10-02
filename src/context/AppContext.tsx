@@ -122,6 +122,10 @@ interface AppContextType {
   setUnreadChatCount: React.Dispatch<React.SetStateAction<number>>;
   chatNotification: { text: string; sender: string; timestamp: number } | null;
   setChatNotification: (toast: { text: string; sender: string; timestamp: number } | null) => void;
+  showPrivacyModal: boolean;
+  setShowPrivacyModal: (show: boolean) => void;
+  registerUser: (name: string, email: string, password: string, role: UserRole) => { success: boolean; error?: string };
+  loginUser: (email: string, password: string) => { success: boolean; error?: string };
   resetDemoData: () => void;
 }
 
@@ -130,6 +134,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 const LOCAL_STORAGE_KEY_CASES = 'caselink_cases_v2';
 const LOCAL_STORAGE_KEY_DELETED_CASES = 'caselink_deleted_cases_v2';
 const LOCAL_STORAGE_KEY_USER = 'caselink_user_v2';
+const LOCAL_STORAGE_KEY_REGISTERED_USERS = 'caselink_registered_accounts_v2';
 
 let idCounter = 0;
 export const generateUniqueId = (prefix: string = 'id'): string => {
@@ -272,6 +277,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   
   const [showOnboarding, setShowOnboarding] = useState<boolean>(false);
   const [showHelpModal, setShowHelpModal] = useState<boolean>(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState<boolean>(false);
   const [authModal, setAuthModal] = useState<'login' | 'register' | null>(null);
 
   // Quick Chat Drawer & Notification states
@@ -1366,6 +1372,78 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     );
   };
 
+  const registerUser = (
+    name: string,
+    email: string,
+    password: string,
+    role: UserRole
+  ): { success: boolean; error?: string } => {
+    try {
+      const cleanEmail = email.trim().toLowerCase();
+      const savedAccounts = localStorage.getItem(LOCAL_STORAGE_KEY_REGISTERED_USERS);
+      const accounts: UserProfile[] = savedAccounts ? JSON.parse(savedAccounts) : [];
+      if (accounts.some((acc) => acc.email.toLowerCase() === cleanEmail)) {
+        return { success: false, error: 'อีเมลนี้ถูกใช้งานแล้วในระบบอุปกรณ์นี้' };
+      }
+      const newUser: UserProfile = {
+        id: generateUniqueId('usr'),
+        name: name.trim(),
+        email: cleanEmail,
+        role,
+        hasCompletedOnboarding: false,
+        passwordHash: btoa(password), // Obfuscated client-side vault token
+        createdAt: new Date().toISOString(),
+      };
+      accounts.push(newUser);
+      localStorage.setItem(LOCAL_STORAGE_KEY_REGISTERED_USERS, JSON.stringify(accounts));
+      setCurrentUser(newUser);
+      return { success: true };
+    } catch (e: any) {
+      return { success: false, error: 'ไม่สามารถสร้างบัญชีได้: ' + (e?.message || 'ข้อผิดพลาดระบบ') };
+    }
+  };
+
+  const loginUser = (email: string, password: string): { success: boolean; error?: string } => {
+    try {
+      const cleanEmail = email.trim().toLowerCase();
+      const savedAccounts = localStorage.getItem(LOCAL_STORAGE_KEY_REGISTERED_USERS);
+      const accounts: UserProfile[] = savedAccounts ? JSON.parse(savedAccounts) : [];
+
+      const found = accounts.find((acc) => acc.email.toLowerCase() === cleanEmail);
+      if (found) {
+        if (found.passwordHash && found.passwordHash !== btoa(password)) {
+          return { success: false, error: 'รหัสผ่านไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง' };
+        }
+        setCurrentUser(found);
+        return { success: true };
+      }
+
+      // Demo accounts fallback
+      if (cleanEmail === DEMO_LAWYER.email.toLowerCase()) {
+        setCurrentUser(DEMO_LAWYER);
+        return { success: true };
+      }
+      if (cleanEmail === DEMO_CLIENT.email.toLowerCase()) {
+        setCurrentUser(DEMO_CLIENT);
+        return { success: true };
+      }
+
+      // If user typed anything with lawyer/client, allow quick demo login
+      if (cleanEmail.includes('lawyer') || cleanEmail.includes('ทนาย')) {
+        setCurrentUser({ ...DEMO_LAWYER, email: cleanEmail });
+        return { success: true };
+      }
+      if (cleanEmail.includes('client') || cleanEmail.includes('ลูกความ')) {
+        setCurrentUser({ ...DEMO_CLIENT, email: cleanEmail });
+        return { success: true };
+      }
+
+      return { success: false, error: 'ไม่พบบัญชีผู้ใช้นี้ กรุณาสร้างบัญชีก่อนเข้าสู่ระบบ' };
+    } catch (e: any) {
+      return { success: false, error: 'เข้าสู่ระบบไม่สำเร็จ: ' + (e?.message || 'ข้อผิดพลาดระบบ') };
+    }
+  };
+
   const resetDemoData = () => {
     setCases(INITIAL_CASES);
     setDeletedCases([]);
@@ -1459,6 +1537,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setUnreadChatCount,
         chatNotification,
         setChatNotification,
+        showPrivacyModal,
+        setShowPrivacyModal,
+        registerUser,
+        loginUser,
         resetDemoData,
       }}
     >

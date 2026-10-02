@@ -25,6 +25,8 @@ import { SettingsModal } from './components/settings/SettingsModal.tsx';
 import { DocumentUploadModal } from './components/client/DocumentUploadModal.tsx';
 import { CaseChatView } from './components/chat/CaseChatView.tsx';
 import { ShopeeClientChatView } from './components/chat/ShopeeClientChatView.tsx';
+import { LineBotIntegrationView } from './components/lawyer/LineBotIntegrationView.tsx';
+import { PrivacyPolicyModal } from './components/common/PrivacyPolicyModal.tsx';
 import { MessageSquare, Zap, Bell, X, ArrowRight } from 'lucide-react';
 
 function MainApp() {
@@ -45,6 +47,8 @@ function MainApp() {
     chatNotification,
     setChatNotification,
     simulateClientMessage,
+    showPrivacyModal,
+    setShowPrivacyModal,
   } = useApp();
   const [isCreateCaseOpen, setIsCreateCaseOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -148,6 +152,7 @@ function MainApp() {
                 />
               )}
               {activeLawyerNav === 'clients' && <ClientsView />}
+              {activeLawyerNav === 'line_bot' && <LineBotIntegrationView />}
               {activeLawyerNav === 'roadmap' && <RoadmapView />}
             </main>
           </>
@@ -269,6 +274,10 @@ function MainApp() {
       <OnboardingModal onOpenCreateCase={() => setIsCreateCaseOpen(true)} />
       <ContextualHelpModal />
       <AuthModals />
+      <PrivacyPolicyModal
+        isOpen={showPrivacyModal}
+        onClose={() => setShowPrivacyModal(false)}
+      />
       <SettingsModal
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}

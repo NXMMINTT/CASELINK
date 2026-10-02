@@ -132,7 +132,7 @@ export interface CaseMessage {
 
 export type CaseTabType = 'overview' | 'mindmap' | 'timeline' | 'documents' | 'checklist' | 'chat';
 
-export type LawyerNavType = 'dashboard' | 'cases' | 'calendar' | 'documents' | 'clients' | 'chat' | 'roadmap';
+export type LawyerNavType = 'dashboard' | 'cases' | 'calendar' | 'documents' | 'clients' | 'chat' | 'roadmap' | 'line_bot';
 
 export interface CourtVerdict {
   verdictDate?: string; // วันที่ศาลมีคำสั่ง / อ่านคำพิพากษา
@@ -204,5 +204,7 @@ export interface UserProfile {
   role: UserRole;
   avatar?: string;
   hasCompletedOnboarding: boolean;
+  passwordHash?: string;
+  createdAt?: string;
 }
 

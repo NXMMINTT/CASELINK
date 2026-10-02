@@ -13,6 +13,7 @@ import {
   MessageSquare,
   Zap,
   Rocket,
+  Smartphone,
   CheckCircle2,
   Circle,
   Trash2,
@@ -52,6 +53,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ onOpenCreateCase, onOpenSettin
     { id: 'calendar', label: 'ปฏิทิน', icon: Calendar },
     { id: 'documents', label: 'เอกสาร', icon: FileText },
     { id: 'clients', label: 'ลูกความ', icon: Users },
+    {
+      id: 'line_bot',
+      label: 'ระบบ LINE แจ้งเตือน',
+      icon: Smartphone,
+      badge: 'LINE OA',
+      isLineBrand: true,
+    },
     {
       id: 'roadmap',
       label: 'สิ่งที่เว็บจะอัปเดต',
@@ -113,6 +121,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ onOpenCreateCase, onOpenSettin
                     className={`text-[11px] px-2 py-0.5 rounded-full font-bold flex items-center space-x-1 ${
                       isAlert
                         ? 'bg-emerald-500 text-white animate-pulse shadow-sm'
+                        : 'isLineBrand' in item && item.isLineBrand
+                        ? 'bg-[#06C755] text-white shadow-xs'
                         : isActive
                         ? 'bg-sky-950 text-sky-300 border border-sky-800'
                         : 'bg-slate-800 text-slate-400'
