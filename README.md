@@ -5,27 +5,29 @@
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-v4.0-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 [![Google Gemini API](https://img.shields.io/badge/Google_Gemini-3.8_Flash-4285F4?logo=google&logoColor=white)](https://ai.google.dev/)
 [![LINE Messaging API](https://img.shields.io/badge/LINE_Official-Messaging_API-06C755?logo=line&logoColor=white)](https://developers.line.biz/)
+[![Figma UI Principles](https://img.shields.io/badge/Design_System-Figma_UI_Principles-F24E1E?logo=figma&logoColor=white)](#-การประยุกต์ใช้หลักการออกแบบ-uxui-จาก-figma)
 [![Zero-Knowledge Architecture](https://img.shields.io/badge/Security-Zero--Knowledge_Vault-10B981?logo=shield&logoColor=white)](#-คำรับรองความปลอดภัย-zero-knowledge-architecture)
 [![Thai Legal Ethics](https://img.shields.io/badge/Compliance-มรรยาททนายความ_ข้อ_14-8B5CF6)](https://www.lawyerscouncil.or.th/)
 
 > **"เชื่อมโยงทุกข้อมูล ให้เห็นภาพรวมของคดี — ปราศจากการเก็บข้อมูลบนเครื่องแม่ข่าย (Zero-Knowledge)"**  
-> พื้นที่ทำงานอัจฉริยะสำหรับทนายความและวิชาชีพกฎหมายในไทย จัดระเบียบข้อเท็จจริง คลังพยานหลักฐาน ข้อกฎหมาย ผังคดีแบบ Blueprint Graph พร้อมระบบแจ้งเตือนลูกความอัตโนมัติผ่าน LINE Official Account
+> พื้นที่ทำงานอัจฉริยะสำหรับทนายความและวิชาชีพกฎหมายในไทย จัดระเบียบข้อเท็จจริง คลังพยานหลักฐาน ข้อกฎหมาย ผังคดีแบบ Blueprint Graph พร้อมระบบแจ้งเตือนลูกความอัตโนมัติผ่าน LINE Official Account โดยคำนึงถึงมรรยาทวิชาชีพทนายความและความลับของลูกความตามประมวลกฎหมายอาญา มาตรา 323
 
 ---
 
 ## 📌 สารบัญ (Table of Contents)
 - [ภาพรวมของระบบ (Overview)](#-ภาพรวมของระบบ-overview)
 - [ภาพรวมฟีเจอร์เด่น (Feature Showcase Gallery)](#-ภาพรวมฟีเจอร์เด่น-feature-showcase-gallery)
-- [ฟีเจอร์หลัก (Core Features)](#-ฟีเจอร์หลัก-core-features)
-  - [1. Interactive Blueprint Mind Map](#1-interactive-case-mind-map-unreal-blueprint-engine-style)
-  - [2. ระบบแจ้งเตือนลูกความผ่าน LINE Official Bot](#2-ระบบแจ้งเตือนลูกความอัตโนมัติผ่าน-line-official-account-line-oa-hub)
-  - [3. คำรับรองความปลอดภัย & Zero-Knowledge Architecture](#3-คำรับรองความปลอดภัยและนโยบายความเป็นส่วนตัว-zero-knowledge-vault)
-  - [4. AI Fact-Structuring & Post-Case Learning](#4-ai-fact-structuring--post-case-learning)
-  - [5. คลังเอกสาร & ปฏิทินนัดหมายศาล](#5-คลังเอกสารและปฏิทินนัดหมายศาล)
+  - [0. ระบบลงทะเบียน & ประตูเข้าสู่ระบบ (Authentication & Onboarding Gateway)](#0--ระบบลงทะเบียน--ประตูเข้าสู่ระบบ-authentication--onboarding-gateway)
+  - [1. ผังคดีแบบโหนดเชื่อมโยง (Interactive Legal Mind Map & Blueprint Canvas)](#1--ผังคดีแบบโหนดเชื่อมโยง-interactive-legal-mind-map--blueprint-canvas)
+  - [2. ระบบแจ้งเตือนลูกความผ่าน LINE Official (LINE OA Hub)](#2--ระบบแจ้งเตือนลูกความผ่าน-line-official-line-oa-hub)
+  - [3. คลังเตรียมตัวว่าความ & คำนวณเบี้ยปรับดอกเบี้ย (Courtroom Arsenal)](#3--คลังเตรียมตัวว่าความ--คำนวณเบี้ยปรับดอกเบี้ย-courtroom-arsenal)
+  - [4. สถาปัตยกรรมรักษาความลับขั้นสูงสุด (Zero-Knowledge Vault Architecture)](#4--สถาปัตยกรรมรักษาความลับขั้นสูงสุด-zero-knowledge-vault-architecture)
+- [การประยุกต์ใช้หลักการออกแบบ UX/UI จาก Figma](#-การประยุกต์ใช้หลักการออกแบบ-uxui-จาก-figma)
+- [ฟีเจอร์หลักของระบบ (Core Features Breakdown)](#-ฟีเจอร์หลักของระบบ-core-features-breakdown)
 - [สถาปัตยกรรมระบบ (System Architecture)](#-สถาปัตยกรรมระบบ-system-architecture)
 - [โครงสร้างโฟลเดอร์ (Project Structure)](#-โครงสร้างโฟลเดอร์-project-structure)
 - [การติดตั้งและรันโปรเจกต์ (Getting Started)](#-การติดตั้งและรันโปรเจกต์-getting-started)
-- [สิ่งที่ได้เรียนรู้จากการใช้ Google AI Studio (Lessons Learned & Retrospective)](#-สิ่งที่ได้เรียนรู้จากการใช้-google-ai-studio-กับโปรเจกต์นี้)
+- [สิ่งที่ได้เรียนรู้จากการใช้ Google AI Studio (Lessons Learned & Retrospective)](#-สิ่งที่ฉันได้เรียนรู้จากการใช้-google-ai-studio-กับโปรเจกต์นี้)
 - [บทวิเคราะห์ทางวิศวกรรมซอฟต์แวร์ (Senior Full-Stack Critique)](#-บทวิเคราะห์ทางวิศวกรรมซอฟต์แวร์-senior-full-stack-critique)
 - [ลิขสิทธิ์และการใช้งาน](#-ลิขสิทธิ์และการใช้งาน)
 
@@ -44,7 +46,42 @@ $$\text{บุคคล (People)} \longrightarrow \text{เหตุการณ
 
 ## 📸 ภาพรวมฟีเจอร์เด่น (Feature Showcase Gallery)
 
-### 1. 🧠 Interactive Legal Mind Map & Blueprint Canvas
+### 0. 🚪 ระบบลงทะเบียน & ประตูเข้าสู่ระบบ (Authentication & Onboarding Gateway)
+
+เมื่อผู้ใช้เข้าใช้งานระบบครั้งแรก หรือยังไม่ได้ลงชื่อเข้าใช้ ระบบจะบังคับเปิด **หน้าต่างลงทะเบียน/เข้าสู่ระบบเต็มจอ (Auth Gateway)** ทันที เพื่อป้องกันไม่ให้บุคคลภายนอกเข้าถึงสำนวนคดีความลับ
+
+```
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│ [CASELINK] Thai Legal Workspace                🛡️ การรับรอง: Zero-Knowledge Vault      │
+├──────────────────────────────────────────┬─────────────────────────────────────────────┤
+│  คุณค่าและฟีเจอร์เด่นของระบบ              │  📝 ลงทะเบียนใช้งานใหม่   |  🔑 เข้าสู่ระบบ  │
+│                                          ├─────────────────────────────────────────────┤
+│  จัดการคดีความ                            │  บทบาทผู้ใช้งาน:                             │
+│  เห็นภาพรวมทั้งสำนวน                      │  ┌───────────────────────┐ ┌───────────────┐│
+│  ปลอดภัยบนเครื่องของคุณ                    │  │ ⚖️ ทนายความ / นิติกร   │ │ 👤 ลูกความ    ││
+│                                          │  │ (บริหารสำนวน วางยุทธวิธี)│ │ (ส่งเอกสาร/นัด)││
+│  • Interactive Blueprint Canvas          │  └───────────────────────┘ └───────────────┘│
+│    เชื่อมโยงข้อเท็จจริง พยาน ข้อกฎหมาย      │                                             │
+│  • LINE Official Automation              │  ชื่อ-นามสกุล / ชื่อสำนักงาน:                 │
+│    แจ้งเตือนวันนัดศาล ทวงเอกสารอัตโนมัติ     │  [ ทนายวิชัย เกียรติขจร                       ]│
+│  • AI Fact-Structuring & Audit           │  อีเมล: [ vichai@lawyer.in.th                 ]│
+│    สกัดข้อเท็จจริงด้วย Gemini JSON Schema│  เลขที่ใบอนุญาตว่าความ: [ 1425/2560           ]│
+│  • Courtroom Arsenal & Speech Prep       │  รหัสผ่าน: [ ••••••••••••  👁️ ]               │
+│    เตรียมประเด็นถามพยาน ดอกเบี้ย 5%      │  ยืนยันรหัสผ่าน: [ •••••••••••• ]            │
+│                                          │  ☑️ ข้าพเจ้ายินยอมรับทราบนโยบายความลับ        │
+│  🛡️ สอดคล้องข้อบังคับสภาทนายความ          │     วิชาชีพตาม ป.อาญา ม.323 และ Zero-Knowledge│
+│     ว่าด้วยมรรยาททนายความ พ.ศ. 2529 ข้อ 14 │  ┌─────────────────────────────────────────┐│
+│     และ ประมวลกฎหมายอาญา มาตรา 323       │  │ 🚀 สร้างบัญชีและเข้าสู่ระบบทันที         ││
+│                                          │  └─────────────────────────────────────────┘│
+│                                          │  หรือทดลองประเมินระบบทันที (ไม่ต้องพิมพ์):  │
+│                                          │  [ ⚖️ ทดลอง: ทนายความ ] [ 👤 ทดลอง: ลูกความ ]│
+└──────────────────────────────────────────┴─────────────────────────────────────────────┘
+```
+
+---
+
+### 1. 🧠 ผังคดีแบบโหนดเชื่อมโยง (Interactive Legal Mind Map & Blueprint Canvas)
+
 ```
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
 │ [CASELINK] คดีพิพาทสัญญาจะซื้อจะขายที่ดิน • มูลค่าพิพาท 5,400,000 บาท                 │
@@ -64,13 +101,14 @@ $$\text{บุคคล (People)} \longrightarrow \text{เหตุการณ
 │ │ (คู่กรณี/จำเลย)│ │ └───────────────┘ │ └───────────────┘ │ └────────────────────────┘ │
 └───────────────────┴───────────────────┴───────────────────┴────────────────────────────┘
 ```
-* **Dynamic Pin Colors:** เส้นเชื่อมโยง (Cables) ปรับเปลี่ยนสีตามกล่องต้นทางโดยอัตโนมัติ (เช่น เขียว=บุคคล, ส้ม=เอกสาร, ฟ้า=เหตุการณ์, ม่วง=กฎหมาย, แดง=กลยุทธ์)
+* **Dynamic Pin Colors:** เส้นเชื่อมโยง (Cables) ปรับเปลี่ยนสีตามกล่องต้นทางโดยอัตโนมัติ (เขียว=บุคคล, ส้ม=เอกสาร, ฟ้า=เหตุการณ์, ม่วง=กฎหมาย, แดง=กลยุทธ์)
 * **AI Auto-Layout:** จัดเรียงคอลัมน์มาตรฐานโดยไม่ซ้อนทับกัน (No Overlap) พร้อมคำนวณความสูงตามเนื้อหาจริง
 * **Freeform Pin Drag & Drop:** ลากพอร์ต (Output ➔ Input) เชื่อมโยงข้ามโหนดได้อย่างอิสระ พร้อมปุ่มกากบาทลบเส้นเชื่อมที่จุดกึ่งกลาง
 
 ---
 
 ### 2. 📱 ระบบแจ้งเตือนลูกความผ่าน LINE Official (LINE OA Hub)
+
 ```
 ┌─────────────────────────────────┐
 │     LINE Official Account       │
@@ -78,7 +116,7 @@ $$\text{บุคคล (People)} \longrightarrow \text{เหตุการณ
 ├─────────────────────────────────┤
 │                                 │
 │  ┌───────────────────────────┐  │
-│  │ ⚖️ แจ้งเตือนวันนัดพิจารณาคดี  │  │ (LINE Flex Message สีเขียว)
+│  │ ⚖️ แจ้งเตือนวันนัดพิจารณาคดี  │  │ (LINE Flex Message การ์ดสีเขียวสดใส)
 │  │ คดี: พิพาทสัญญาจะซื้อจะขาย    │  │
 │  ├───────────────────────────┤  │
 │  │ • วันนัด: 24 พ.ย. 69 (09:00)│  │
@@ -88,7 +126,7 @@ $$\text{บุคคล (People)} \longrightarrow \text{เหตุการณ
 │  │ • เตรียมตัว: นำบัตร ปชช. ตัวจริง│  │
 │  ├───────────────────────────┤  │
 │  │ [ เปิดแฟ้มคดีในระบบ CASELINK ] │  │
-│  │ [ส่งเอกสารให้ทนาย] [โทรด่วน] │  │
+│  │ [ ส่งเอกสารให้ทนาย ] [โทรด่วน]│  │
 │  └───────────────────────────┘  │
 │                           10:45 │
 └─────────────────────────────────┘
@@ -99,7 +137,27 @@ $$\text{บุคคล (People)} \longrightarrow \text{เหตุการณ
 
 ---
 
-### 3. 🔒 คำรับรองความปลอดภัย & Zero-Knowledge Architecture
+### 3. ⚖️ คลังเตรียมตัวว่าความ & คำนวณเบี้ยปรับดอกเบี้ย (Courtroom Arsenal)
+
+```
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│ 🏛️ COURTROOM PREPARATION & TALKING POINTS                                              │
+├──────────────────────────────────────────┬─────────────────────────────────────────────┤
+│ 🎙️ ประเด็นถามพยาน (Examination Points)   │ 💰 คำนวณดอกเบี้ย & ค่าเสียหาย (ป.พ.พ. ม.224)│
+├──────────────────────────────────────────┼─────────────────────────────────────────────┤
+│ • ถามซักโจทก์ (Direct Exam):             │ • เงินต้นค่างวดที่ผิดนัด: 1,200,000 บาท     │
+│   1. วันทำสัญญาอยู่ที่ไหน ใครลงลายมือชื่อ │ • วันเริ่มผิดนัด: 15 มกราคม 2568             │
+│   2. ได้รับเงินมัดจำถูกต้องหรือไม่ (อ้าง จ.1)│ • อัตราดอกเบี้ยผิดนัดตามกฎหมาย: 5.0% ต่อปี  │
+│ • ถามค้านจำเลย (Cross Exam):             │ • ระยะเวลาผิดนัด: 1 ปี 8 เดือน (620 วัน)    │
+│   1. จำเลยยอมรับหรือไม่ว่าได้รับหนังสือเตือน │ ├─────────────────────────────────────────┤│
+│   2. เหตุใดจึงไม่โอนกรรมสิทธิ์ตามนัด     │ │ 📊 รวมเงินต้นพร้อมดอกเบี้ย: 1,301,917 บาท ││
+└──────────────────────────────────────────┴─────────────────────────────────────────────┘
+```
+
+---
+
+### 4. 🔒 สถาปัตยกรรมรักษาความลับขั้นสูงสุด (Zero-Knowledge Vault Architecture)
+
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
 │                        อุปกรณ์ของทนายความ (Client Device)                │
@@ -125,7 +183,25 @@ $$\text{บุคคล (People)} \longrightarrow \text{เหตุการณ
 
 ---
 
-## 🚀 ฟีเจอร์หลัก (Core Features)
+## 🎨 การประยุกต์ใช้หลักการออกแบบ UX/UI จาก Figma
+
+จากแนวทางการออกแบบตาม [Figma UI Design Principles](https://www.figma.com/resource-library/ui-design-principles/) เราได้นำหลักการ 9 ประการมาใช้อย่างเคร่งครัดใน **CASELINK**:
+
+| หลักการออกแบบ (Principle) | การประยุกต์ใช้จริงในระบบ CASELINK | ผลลัพธ์ต่อประสบการณ์ผู้ใช้ (UX Impact) |
+| :--- | :--- | :--- |
+| **1. Visual Hierarchy (ลำดับชั้นทางสายตา)** | จัดขนาด Heading เด่นชัด (Display font), ป้าย Kicker บอกหมวดหมู่, ปุ่ม CTA เด่นด้วย Gradient ม่วง-น้ำเงิน และข้อมูลย่อยใช้สี slate-400 | ทนายกวาดสายตาเพียง 2 วินาทีก็ทราบว่าจุดไหนสำคัญที่สุดในสำนวนคดี |
+| **2. Alignment & 8px Grid System** | ใช้ระบบ Grid 8px (`gap-2`, `gap-4`, `p-6`) จัดแนว Layout 2 คอลัมน์บน Desktop แบบ 1440px และจัดคอลัมน์ผังคดีแบบแม่นยำ | หน้าจอเป็นระเบียบ สบายตา ลดความเครียดขณะเตรียมคดีที่มีความกดดันสูง |
+| **3. Contrast & Legibility (WCAG AA)** | ใช้พื้นหลัง Neutral Dark Slate (`#070b14`) ตัดกับตัวหนังสือสีขาวและฟ้าอ่อน ค่า Contrast Ratio $\ge 4.5:1$ | อ่านตัวบทกฎหมายและข้อเท็จจริงได้ชัดเจนในทุกสภาพแสง แม้ในห้องพิจารณาคดี |
+| **4. Consistency (ความสม่ำเสมอ)** | ควบคุมปุ่มทุกปุ่มให้มีความสูงมาตรฐาน $\ge 44\text{px}$, ขอบมน `rounded-xl`, Iconography จาก Lucide React ทั้งระบบ | ผู้ใช้เรียนรู้การใช้งานครั้งเดียว เข้าใจทั้งระบบโดยไม่ต้องเดา |
+| **5. Affordance & Signifiers** | ช่องกรอกรหัสผ่านมีปุ่มเปิด-ปิดตา (Eye/EyeOff), กล่องเลือกบทบาทมี Checkmark, พอร์ตเชื่อมสายใน Mind Map แสดง Highlight เมื่อ Hover | ผู้ใช้รู้ทันทีว่าปุ่มไหนกดได้ และกดแล้วจะเกิดอะไรขึ้น |
+| **6. Feedback & Status Visibility** | เมื่อส่งคำสั่ง มีสถานะ Loading ชัดเจน, แจ้งเตือนข้อผิดพลาดด้วยแบนเนอร์สีแดงพร้อมไอคอนเตือน, และมี Toast แจ้งเตือนแชทเด้งทันที | ผู้ใช้มั่นใจในสถานะของระบบตลอดเวลา ลดความผิดพลาด |
+| **7. White Space & Zero-Pill Discipline** | เว้นระยะห่างหายใจรอบคอนเทนต์ ไม่ใช้ Badge รกหูรกตา ข้อมูลสถิติใช้ข้อความพร้อมตัวคั่น `·` หรือ `/` | รู้สึกหรูหราแบบ Professional Suite ไม่ใช่ "AI Slop" ทั่วไป |
+| **8. Fitts's Law & Touch Targets** | ปุ่ม Action สำคัญวางอยู่ในตำแหน่งที่เข้าถึงง่าย พร้อมปุ่ม "ทดลองด่วน" สำหรับกรรมการประเมินระบบ | เข้าใช้งานได้ในคลิกเดียว ลดเวลาคลิกและพิมพ์ซ้ำซ้อน |
+| **9. Error Prevention & Recovery** | มีระบบกู้คืนคดีที่เผลอลบ (Undo Toast) ภายใน 8 วินาที และยืนยันรหัสผ่านก่อนสมัคร | ป้องกันการสูญหายของข้อมูลสำนวนคดีโดยไม่ตั้งใจ |
+
+---
+
+## 🚀 ฟีเจอร์หลักของระบบ (Core Features Breakdown)
 
 ### 1. 🧠 Interactive Case Mind Map (Unreal Blueprint Engine Style)
 * **ผังคดีแบบโหนดเชื่อมโยง (Node Graph):** ลากและวางโหนดได้อย่างอิสระ รองรับทั้งเส้นตั้งฉากหักมุม (Orthogonal) และเส้นโค้ง (Bezier)
@@ -166,7 +242,8 @@ $$\text{บุคคล (People)} \longrightarrow \text{เหตุการณ
 * **Frontend Framework:** React 19 + TypeScript
 * **Bundler & Build Tool:** Vite 8
 * **Styling:** Tailwind CSS v4 (`@tailwindcss/vite`)
-* **Icons & UI Micro-interactions:** Lucide React, CSS Transitions
+* **Design Constitution:** Figma UI Design Principles & Domain-Specific Legal Architecture
+* **Icons & Micro-interactions:** Lucide React, CSS Transitions
 * **Backend Proxy Server:** Express + Node.js (tsx) — *Stateless Proxy, Zero Persistence*
 * **AI Engine:** Google Gemini API (`@google/genai` TypeScript SDK)
 * **External Integration:** LINE Messaging API (Flex Messages)
@@ -179,23 +256,23 @@ $$\text{บุคคล (People)} \longrightarrow \text{เหตุการณ
 ```text
 ├── src/
 │   ├── components/
-│   │   ├── auth/            # ระบบลงทะเบียนและเข้าสู่ระบบแบบ Local Vault
+│   │   ├── auth/            # AuthGatewayView (Figma-inspired UI), AuthModals
 │   │   ├── chat/            # หน้าต่างแชทสนทนาระหว่างทนายและลูกความ
 │   │   ├── checklist/       # ตารางเช็กลิสต์ตรวจเอกสาร (ChecklistView)
 │   │   ├── client/          # หน้าแดชบอร์ดเฉพาะมุมมองของลูกความ
 │   │   ├── common/          # คอมโพเนนต์ส่วนกลาง (ThaiDatePicker, PrivacyPolicyModal)
 │   │   ├── documents/       # คลังจัดเก็บเอกสารและพยานหลักฐาน (DocumentsView)
 │   │   ├── lawyer/          # LawyerDashboard, CaseDetailView, CalendarView, LineBotIntegrationView
-│   │   ├── layout/          # Sidebar, Navbar (พร้อมปุ่ม Zero-Knowledge)
+│   │   ├── layout/          # Sidebar, Navbar (พร้อมปุ่ม Logout และ Zero-Knowledge)
 │   │   ├── mindmap/         # Interactive Blueprint MindMapView, AiStructuringModal
 │   │   ├── roadmap/         # แผนพัฒนาฟีเจอร์ในอนาคต (RoadmapView)
 │   │   ├── settings/        # ตั้งค่าโปรไฟล์สำนักงาน, LINE Bot, และนโยบายความลับ
 │   │   └── timeline/        # ลำดับเหตุการณ์ตามวันเวลา (TimelineView)
 │   ├── context/
-│   │   └── AppContext.tsx   # ศูนย์กลาง State, Data Sanitization, Unique ID Generator
+│   │   └── AppContext.tsx   # ศูนย์กลาง State, Auth Session Gate, Data Sanitization
 │   ├── mockData.ts          # คดีตัวอย่างและข้อมูลตั้งต้น
 │   ├── types.ts             # ประกาศ TypeScript Interfaces ทั้งหมด
-│   ├── App.tsx              # Root Component ควบคุม Role & Navigation
+│   ├── App.tsx              # Root Component ควบคุม Auth Gate & Navigation
 │   └── main.tsx             # Entry Point
 ├── server.ts                # Express Server (Stateless Gemini API Proxy)
 ├── metadata.json            # AI Studio Applet Metadata
@@ -241,43 +318,43 @@ $$\text{บุคคล (People)} \longrightarrow \text{เหตุการณ
 
 ---
 
-## 💡 สิ่งที่ได้เรียนรู้จากการใช้ Google AI Studio กับโปรเจกต์นี้
+## 💡 สิ่งที่ฉันได้เรียนรู้จากการใช้ Google AI Studio กับโปรเจกต์นี้
 
-การพัฒนา **CASELINK** ร่วมกับ **Google AI Studio** มอบบทเรียนและประสบการณ์เชิงวิศวกรรมซอฟต์แวร์ที่ลึกซึ้งใน 5 มิติสำคัญ:
+การพัฒนา **CASELINK** โดยใช้ **Google AI Studio** ร่วมกับการวิเคราะห์ความต้องการจริงของทนายความไทย ได้สร้างบทเรียนที่มีคุณค่าและเปิดโลกการพัฒนาซอฟต์แวร์ในหลายมิติ:
 
-### 1. การเปลี่ยนผ่านจาก "Prototype ธรรมดา" สู่ "Production-Grade Domain Tool"
-* ในโลกความจริง การเขียนโค้ดสำหรับวิชาชีพเฉพาะทาง เช่น **ทนายความ** ไม่สามารถใช้โค้ดแบบ Generic SaaS ทั่วไปได้
-* AI Studio ช่วยให้เรามองเห็นข้อกำหนดทางกฎหมายไทย เช่น **ข้อบังคับสภาทนายความว่าด้วยมรรยาททนายความ พ.ศ. 2529 ข้อ 14** และ **ป.อ. ม.323** นำไปสู่การตัดสินใจทางสถาปัตยกรรมที่ถูกต้อง: **การเลือกใช้ Zero-Knowledge & Local-First Architecture แทนการเก็บข้อมูลบน Central Database** ซึ่งตอบโจทย์ Pain Point เรื่อง "ทนายกลัวข้อมูลลูกความหลุด" ได้ตรงจุดที่สุด
+### 1. การก้าวข้ามจาก "AI แชตบอตธรรมดา" สู่ "Domain-Specific Workflow Tool"
+* บทเรียนแรกที่สำคัญที่สุดคือ **วิชาชีพกฎหมายไม่ต้องการ Chatbot ทั่วไป** เพราะทนายไม่สามารถนำคำตอบแบบบทความยาวๆ ไปยื่นศาลหรือวางแผนคดีได้ทันที
+* Google AI Studio ช่วยให้เราเห็นว่า การสร้างคุณค่าที่แท้จริงคือการนำ AI มาเป็น **Engine เบื้องหลัง (Invisible AI)** เช่น การทำหน้าที่ **แปลงข้อความเล่าเรื่องคดีความ ให้กลายเป็นโหนดและเส้นเชื่อมโยงใน Blueprint Canvas** ทำให้ทนายเห็นภาพรวมความขัดแย้ง พยาน และช่องว่างแห่งกฎหมายได้อย่างรวดเร็ว
 
-### 2. เทคนิคการผสาน AI แบบ "Zero Data Leakage" (Privacy-Preserving AI)
-* ปัญหาใหญ่ของ LegalTech คือ **ทนายไม่กล้าส่งข้อความคดีไปหา AI เพราะกลัวถูกนำไปเทรนโมเดลสาธารณะ**
-* จากการทำงานกับ AI Studio ทำให้เราได้เรียนรู้การสร้าง **Stateless Proxy Pipeline**:
-  1. การทำ **Client-side PII Masking** บนเบราว์เซอร์ เพื่อเซนเซอร์เลขบัตรประชาชน 13 หลัก, เบอร์โทรศัพท์, และเลขบัญชีก่อนส่ง
-  2. การตั้งค่า Express Proxy ให้เป็นช่องทางผ่านชั่วคราว พร้อม Header `Cache-Control: no-store` โดยปราศจากการเก็บ Request Body ลง Disk หรือ Log ใดๆ
+### 2. กฎหมายและความลับทางวิชาชีพ คือตัวกำหนด Architecture (Zero-Knowledge)
+* ในระหว่างทำโปรเจกต์ เราได้ตระหนักถึงความอ่อนไหวขั้นสูงสุดของข้อมูลคดีความ ทั้งตาม **มรรยาททนายความ พ.ศ. 2529 ข้อ 14** และ **ประมวลกฎหมายอาญา มาตรา 323**
+* หากเก็บข้อมูลบน Cloud Database กลาง ทนายส่วนใหญ่จะไม่กล้าใช้เพราะกังวลเรื่องการถูกแฮกหรือหมายศาลเรียกตรวจข้อมูล
+* Google AI Studio สอนให้เราออกแบบ **Stateless Proxy Pipeline**: ทำ Client-side PII Masking เซนเซอร์เลขบัตรประชาชน 13 หลักและเบอร์โทรศัพท์ก่อนส่ง และใช้ Local-First Storage ในเครื่องทนาย 100% ทำให้ระบบปลอดภัยและสอดคล้องกับจริยธรรมวิชาชีพอย่างแท้จริง
 
-### 3. พลังของ Structured Outputs (JSON Schema) กับ Gemini API
-* ในฟีเจอร์ **"จัดโครงสร้างคดีด้วย AI" (AI Structuring Modal)** การสั่งให้ AI สกัดข้อเท็จจริงออกมาเป็นภาษาธรรมชาติแบบ Chatbot มักจะนำไปเรนเดอร์ต่อใน Canvas ได้ยาก
-* การใช้ **Schema Definition (Type.OBJECT, Type.ARRAY)** ของ `@google/genai` SDK ทำให้โมเดล Gemini ส่งคืนโครงสร้างข้อมูลที่ Typed 100% สอดคล้องกับ Interface `CaseEvent`, `Person`, และ `Document` ทำให้การแปลงข้อความภาษาไทยธรรมดาไปเป็น **โหนด Mind Map และเส้นสาย Bezier Curve** เกิดขึ้นได้ทันทีโดยไม่มีข้อผิดพลาดด้านการ Parse JSON
+### 3. ประสิทธิภาพของ Gemini Structured Outputs (JSON Schema)
+* การใช้ `@google/genai` ร่วมกับ Structured Output Schema (`Type.OBJECT`, `Type.ARRAY`) เป็นฟีเจอร์ที่สร้างความประทับใจสูงสุด
+* ในอดีต การสั่ง LLM ให้ตอบ JSON มักเจอปัญหา Markdown Backticks ปนเปื้อน หรือ Field ไม่ครบ แต่เมื่อกำหนด Schema ชัดเจน โมเดล Gemini สามารถส่งคืน Array ของ `events`, `people`, และ `documents` ที่ Typed ตรงกับ TypeScript Interfaces ของเราอย่างสมบูรณ์แบบ ทำให้การ Render กราฟิกบน Canvas ไม่เคยพัง
 
-### 4. การจัดการปัญหาความซับซ้อนของ Interactive Canvas (Mathematical & State Rigor)
-* การทำ Mind Map ที่มีสายเชื่อมโยงระหว่างโหนด (Blueprint Cables) ก่อให้เกิดปัญหาทางเทคนิคจริง เช่น:
-  - ปัญหา **Key Collision** เมื่อสร้างโหนดใหม่พร้อมกัน
-  - ปัญหา **Node Overlapping** เมื่อการ์ดมีเนื้อหาหลายบรรทัด
-  - ปัญหาสายเคเบิลจำสีผิด เมื่อลากเส้นเชื่อมใหม่
-* AI Studio ช่วยในการ Debug เชิงลึก ทั้งการสร้างฟังก์ชันคำนวณ **Bounding Box Clearance**, การสร้างระบบ **Content Fingerprinting Deduplication**, และการคำนวณเวกเตอร์ **Orthogonal / Bezier Path Math** ทำให้ Canvas ทำงานได้อย่างลื่นไหลและเสถียร
+### 4. การจัดการความซับซ้อนของ Interactive Canvas & State Synchronization
+* การสร้าง Interactive Canvas ที่ลากเส้นสายแบบ Unreal Engine Blueprint นำมาซึ่งความท้าทายทางคณิตศาสตร์และ State Management:
+  - การคำนวณตำแหน่งพอร์ต Pin Coordinates ให้แม่นยำตามการเลื่อน Scroll
+  - การป้องกัน **Key Collision** เมื่อสร้างหลายโหนดพร้อมกัน
+  - การป้องกัน **Node Overlap** เมื่อข้อความในการ์ดยาวกว่าปกติ
+* การใช้ AI Studio ช่วยให้เราสามารถ Refactor ฟังก์ชันคำนวณเรขาคณิตเวกเตอร์ และสร้างระบบ `deduplicateAndEnsureUnique` ที่เสถียร รองรับการทำงานแบบ Real-time ได้อย่างไร้รอยต่อ
 
-### 5. การผสาน External Ecosystem อย่างชาญฉลาด (LINE Messaging API)
-* ในประเทศไทย ทนายความและลูกความสื่อสารกันผ่าน **LINE** เป็นช่องทางหลัก
-* การออกแบบให้ทนายสามารถมี **Custom LINE Bot ของสำนักงานตนเอง** โดยเก็บ Channel Access Token ไว้บนอุปกรณ์ของทนาย (Zero-Knowledge) แสดงให้เห็นว่าเราสามารถผสานความสะดวกของ Consumer Messaging App เข้ากับมาตรฐานความปลอดภัยระดับสูงของวิชาชีพกฎหมายได้อย่างลงตัว
+### 5. การผนวกเข้ากับวัฒนธรรมการสื่อสารของคนไทย (LINE Ecosystem)
+* การได้เรียนรู้ว่าในชีวิตจริงของลูกความไทย พวกเขาไม่ได้เปิดแอปพลิเคชันหรือเช็กอีเมลทุกวัน แต่เปิด **LINE** ทุกวัน
+* การออกแบบให้มี **LINE OA Hub** ที่ทนายสามารถผูก Token ของตนเอง และส่ง Flex Messages แจ้งเตือนวันนัดศาลได้ ถือเป็นการเชื่อมช่องว่างระหว่างเทคโนโลยีขั้นสูงกับการใช้งานจริงของประชาชนได้อย่างยอดเยี่ยม
 
 ---
 
 ## 👨‍💻 บทวิเคราะห์ทางวิศวกรรมซอฟต์แวร์ (Senior Full-Stack Critique)
 
 ### สิ่งที่ระบบทำได้ยอดเยี่ยมในปัจจุบัน:
-1. **Zero-Knowledge Privacy:** มั่นใจได้ 100% ว่าไม่มีการรั่วไหลของข้อมูลสำนวนคดีสู่เซิร์ฟเวอร์ส่วนกลาง
-2. **Deterministic UI State:** การจัดระเบียบโหนดคดี (Auto-Layout) มีการเว้นระยะห่างตามความยาวข้อความจริง ไม่ทับซ้อนกัน
-3. **Dual-Role Workflow:** สลับบทบาทระหว่างทนายความและลูกความได้อย่างไร้รอยต่อ
+1. **Figma UI/UX Principles Adherence:** หน้าจอถูกจัดวางอย่างมีลำดับชั้น (Visual Hierarchy), Contrast คมชัด, ตัวหนังสืออ่านง่าย และปุ่มสัมผัสมีขนาดตามหลัก Fitts's Law
+2. **Zero-Knowledge Privacy:** มั่นใจได้ 100% ว่าไม่มีการรั่วไหลของข้อมูลสำนวนคดีสู่เซิร์ฟเวอร์ส่วนกลาง
+3. **Deterministic UI State:** การจัดระเบียบโหนดคดี (Auto-Layout) มีการเว้นระยะห่างตามความยาวข้อความจริง ไม่ทับซ้อนกัน
+4. **Dual-Role Workflow & Auth Gate:** มีหน้าลงทะเบียน/เข้าสู่ระบบที่ปลอดภัย และสลับบทบาทระหว่างทนายความและลูกความได้อย่างไร้รอยต่อ
 
 ### แผนการพัฒนาในเฟสถัดไป (Production Roadmap):
 1. **IndexedDB Migration (Dexie.js):** ยกระดับพื้นที่จัดเก็บเอกสารสแกน PDF ขนาดใหญ่จาก 5MB สู่หลายกิกะไบต์ในเครื่องของทนาย

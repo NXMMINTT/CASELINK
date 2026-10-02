@@ -10,6 +10,7 @@ import {
   Lock,
   UserPlus,
   LogIn,
+  LogOut,
 } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
@@ -21,6 +22,7 @@ export const Navbar: React.FC = () => {
     resetDemoData,
     setShowPrivacyModal,
     setAuthModal,
+    logoutUser,
   } = useApp();
 
   return (
@@ -139,6 +141,16 @@ export const Navbar: React.FC = () => {
                 </button>
               </div>
             </div>
+
+            {/* Logout Action Button */}
+            <button
+              onClick={logoutUser}
+              title="ออกจากระบบ (Sign Out) — กลับสู่หน้า Login/Register"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition cursor-pointer flex items-center space-x-1"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span className="hidden xl:inline text-xs">ออกจากระบบ</span>
+            </button>
           </div>
         </div>
       </div>

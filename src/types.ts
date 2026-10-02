@@ -205,6 +205,7 @@ export interface UserProfile {
   avatar?: string;
   hasCompletedOnboarding: boolean;
   passwordHash?: string;
+  lawyerLicenseId?: string;
   createdAt?: string;
 }
 

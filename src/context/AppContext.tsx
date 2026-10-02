@@ -124,7 +124,18 @@ interface AppContextType {
   setChatNotification: (toast: { text: string; sender: string; timestamp: number } | null) => void;
   showPrivacyModal: boolean;
   setShowPrivacyModal: (show: boolean) => void;
-  registerUser: (name: string, email: string, password: string, role: UserRole) => { success: boolean; error?: string };
+  isAuthenticated: boolean;
+  setIsAuthenticated: (auth: boolean) => void;
+  isFirstTimeUser: boolean;
+  logoutUser: () => void;
+  quickDemoLogin: (role: UserRole) => void;
+  registerUser: (
+    name: string,
+    email: string,
+    password: string,
+    role: UserRole,
+    lawyerLicenseId?: string
+  ) => { success: boolean; error?: string };
   loginUser: (email: string, password: string) => { success: boolean; error?: string };
   resetDemoData: () => void;
 }
@@ -135,6 +146,8 @@ const LOCAL_STORAGE_KEY_CASES = 'caselink_cases_v2';
 const LOCAL_STORAGE_KEY_DELETED_CASES = 'caselink_deleted_cases_v2';
 const LOCAL_STORAGE_KEY_USER = 'caselink_user_v2';
 const LOCAL_STORAGE_KEY_REGISTERED_USERS = 'caselink_registered_accounts_v2';
+const LOCAL_STORAGE_KEY_SESSION = 'caselink_auth_session_active_v2';
+const LOCAL_STORAGE_KEY_VISITED = 'caselink_visited_flag_v2';
 
 let idCounter = 0;
 export const generateUniqueId = (prefix: string = 'id'): string => {
@@ -279,6 +292,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [showHelpModal, setShowHelpModal] = useState<boolean>(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState<boolean>(false);
   const [authModal, setAuthModal] = useState<'login' | 'register' | null>(null);
+
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem(LOCAL_STORAGE_KEY_SESSION) === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const [isFirstTimeUser, setIsFirstTimeUser] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem(LOCAL_STORAGE_KEY_VISITED) !== 'true';
+    } catch {
+      return true;
+    }
+  });
 
   // Quick Chat Drawer & Notification states
   const [isLeftChatOpen, setIsLeftChatOpen] = useState<boolean>(false);
@@ -1372,11 +1401,41 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     );
   };
 
+  const logoutUser = () => {
+    try {
+      localStorage.removeItem(LOCAL_STORAGE_KEY_SESSION);
+    } catch (e) {
+      console.error(e);
+    }
+    setIsAuthenticated(false);
+    setAuthModal('login');
+  };
+
+  const quickDemoLogin = (role: UserRole) => {
+    const user = role === 'lawyer' ? DEMO_LAWYER : DEMO_CLIENT;
+    setCurrentUser(user);
+    try {
+      localStorage.setItem(LOCAL_STORAGE_KEY_USER, JSON.stringify(user));
+      localStorage.setItem(LOCAL_STORAGE_KEY_SESSION, 'true');
+      localStorage.setItem(LOCAL_STORAGE_KEY_VISITED, 'true');
+    } catch (e) {
+      console.error(e);
+    }
+    setIsAuthenticated(true);
+    setIsFirstTimeUser(false);
+    if (role === 'lawyer') {
+      setActiveLawyerNav('dashboard');
+    } else {
+      setActiveClientTab('overview');
+    }
+  };
+
   const registerUser = (
     name: string,
     email: string,
     password: string,
-    role: UserRole
+    role: UserRole,
+    lawyerLicenseId?: string
   ): { success: boolean; error?: string } => {
     try {
       const cleanEmail = email.trim().toLowerCase();
@@ -1392,11 +1451,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         role,
         hasCompletedOnboarding: false,
         passwordHash: btoa(password), // Obfuscated client-side vault token
+        lawyerLicenseId: lawyerLicenseId?.trim(),
         createdAt: new Date().toISOString(),
       };
       accounts.push(newUser);
       localStorage.setItem(LOCAL_STORAGE_KEY_REGISTERED_USERS, JSON.stringify(accounts));
+      localStorage.setItem(LOCAL_STORAGE_KEY_USER, JSON.stringify(newUser));
+      localStorage.setItem(LOCAL_STORAGE_KEY_SESSION, 'true');
+      localStorage.setItem(LOCAL_STORAGE_KEY_VISITED, 'true');
       setCurrentUser(newUser);
+      setIsAuthenticated(true);
+      setIsFirstTimeUser(false);
+      if (role === 'lawyer') {
+        setActiveLawyerNav('dashboard');
+      } else {
+        setActiveClientTab('overview');
+      }
       return { success: true };
     } catch (e: any) {
       return { success: false, error: 'ไม่สามารถสร้างบัญชีได้: ' + (e?.message || 'ข้อผิดพลาดระบบ') };
@@ -1415,26 +1485,50 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           return { success: false, error: 'รหัสผ่านไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง' };
         }
         setCurrentUser(found);
+        localStorage.setItem(LOCAL_STORAGE_KEY_USER, JSON.stringify(found));
+        localStorage.setItem(LOCAL_STORAGE_KEY_SESSION, 'true');
+        localStorage.setItem(LOCAL_STORAGE_KEY_VISITED, 'true');
+        setIsAuthenticated(true);
+        setIsFirstTimeUser(false);
+        if (found.role === 'lawyer') {
+          setActiveLawyerNav('dashboard');
+        } else {
+          setActiveClientTab('overview');
+        }
         return { success: true };
       }
 
       // Demo accounts fallback
       if (cleanEmail === DEMO_LAWYER.email.toLowerCase()) {
-        setCurrentUser(DEMO_LAWYER);
+        quickDemoLogin('lawyer');
         return { success: true };
       }
       if (cleanEmail === DEMO_CLIENT.email.toLowerCase()) {
-        setCurrentUser(DEMO_CLIENT);
+        quickDemoLogin('client');
         return { success: true };
       }
 
       // If user typed anything with lawyer/client, allow quick demo login
       if (cleanEmail.includes('lawyer') || cleanEmail.includes('ทนาย')) {
-        setCurrentUser({ ...DEMO_LAWYER, email: cleanEmail });
+        const u = { ...DEMO_LAWYER, email: cleanEmail };
+        setCurrentUser(u);
+        localStorage.setItem(LOCAL_STORAGE_KEY_USER, JSON.stringify(u));
+        localStorage.setItem(LOCAL_STORAGE_KEY_SESSION, 'true');
+        localStorage.setItem(LOCAL_STORAGE_KEY_VISITED, 'true');
+        setIsAuthenticated(true);
+        setIsFirstTimeUser(false);
+        setActiveLawyerNav('dashboard');
         return { success: true };
       }
       if (cleanEmail.includes('client') || cleanEmail.includes('ลูกความ')) {
-        setCurrentUser({ ...DEMO_CLIENT, email: cleanEmail });
+        const u = { ...DEMO_CLIENT, email: cleanEmail };
+        setCurrentUser(u);
+        localStorage.setItem(LOCAL_STORAGE_KEY_USER, JSON.stringify(u));
+        localStorage.setItem(LOCAL_STORAGE_KEY_SESSION, 'true');
+        localStorage.setItem(LOCAL_STORAGE_KEY_VISITED, 'true');
+        setIsAuthenticated(true);
+        setIsFirstTimeUser(false);
+        setActiveClientTab('overview');
         return { success: true };
       }
 
@@ -1452,6 +1546,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.removeItem(LOCAL_STORAGE_KEY_CASES);
     localStorage.removeItem(LOCAL_STORAGE_KEY_DELETED_CASES);
     localStorage.removeItem(LOCAL_STORAGE_KEY_USER);
+    localStorage.removeItem(LOCAL_STORAGE_KEY_SESSION);
+    localStorage.removeItem(LOCAL_STORAGE_KEY_VISITED);
+    setIsAuthenticated(false);
+    setIsFirstTimeUser(true);
   };
 
   return (
@@ -1539,6 +1637,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setChatNotification,
         showPrivacyModal,
         setShowPrivacyModal,
+        isAuthenticated,
+        setIsAuthenticated,
+        isFirstTimeUser,
+        logoutUser,
+        quickDemoLogin,
         registerUser,
         loginUser,
         resetDemoData,

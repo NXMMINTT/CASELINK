@@ -16,6 +16,7 @@ import {
   Smartphone,
   ExternalLink,
   Scale,
+  LogOut,
 } from 'lucide-react';
 
 interface SettingsModalProps {
@@ -27,7 +28,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   isOpen,
   onClose,
 }) => {
-  const { cases, resetDemoData, setShowPrivacyModal, setActiveLawyerNav } = useApp();
+  const { cases, resetDemoData, setShowPrivacyModal, setActiveLawyerNav, logoutUser } = useApp();
   const [activeTab, setActiveTab] = useState<'profile' | 'notifications' | 'storage' | 'privacy'>('profile');
   const [lawyerName, setLawyerName] = useState('ทนายสมชาย รัตนกุล');
   const [licenseNo, setLicenseNo] = useState('1452/2558');
@@ -388,6 +389,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 >
                   <RotateCcw className="w-4 h-4 text-red-600" />
                   <span>รีเซ็ตข้อมูลตัวอย่างทั้งหมดเป็นค่าเริ่มต้น</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    logoutUser();
+                    onClose();
+                  }}
+                  className="w-full py-2.5 px-4 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-xl font-semibold text-slate-700 flex items-center justify-center space-x-2 transition cursor-pointer"
+                >
+                  <LogOut className="w-4 h-4 text-slate-600" />
+                  <span>ออกจากระบบ (Sign Out เพื่อสลับบัญชีหรือลงทะเบียนใหม่)</span>
                 </button>
               </div>
             </div>

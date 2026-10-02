@@ -27,11 +27,13 @@ import { CaseChatView } from './components/chat/CaseChatView.tsx';
 import { ShopeeClientChatView } from './components/chat/ShopeeClientChatView.tsx';
 import { LineBotIntegrationView } from './components/lawyer/LineBotIntegrationView.tsx';
 import { PrivacyPolicyModal } from './components/common/PrivacyPolicyModal.tsx';
+import { AuthGatewayView } from './components/auth/AuthGatewayView.tsx';
 import { MessageSquare, Zap, Bell, X, ArrowRight } from 'lucide-react';
 
 function MainApp() {
   const {
     currentUser,
+    isAuthenticated,
     activeLawyerNav,
     setActiveLawyerNav,
     currentCase,
@@ -54,6 +56,19 @@ function MainApp() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isUploadDocOpen, setIsUploadDocOpen] = useState(false);
   const [uploadDocType, setUploadDocType] = useState('สัญญา');
+
+  // If not logged in, enforce the Register / Login Gate!
+  if (!isAuthenticated) {
+    return (
+      <>
+        <AuthGatewayView />
+        <PrivacyPolicyModal
+          isOpen={showPrivacyModal}
+          onClose={() => setShowPrivacyModal(false)}
+        />
+      </>
+    );
+  }
 
   const isMindMapActive =
     currentUser.role === 'lawyer' &&
