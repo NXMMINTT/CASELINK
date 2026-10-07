@@ -27,6 +27,7 @@ import { ShopeeClientChatView } from './components/chat/ShopeeClientChatView.tsx
 import { LineBotIntegrationView } from './components/lawyer/LineBotIntegrationView.tsx';
 import { PrivacyPolicyModal } from './components/common/PrivacyPolicyModal.tsx';
 import { AuthGatewayView } from './components/auth/AuthGatewayView.tsx';
+import { LandingPage } from './components/landing/LandingPage.tsx';
 import { MessageSquare, Bell, X, ArrowRight, Loader2, AlertTriangle } from 'lucide-react';
 
 function MainApp() {
@@ -57,6 +58,7 @@ function MainApp() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isUploadDocOpen, setIsUploadDocOpen] = useState(false);
   const [uploadDocType, setUploadDocType] = useState('สัญญา');
+  const [authTab, setAuthTab] = useState<'login' | 'register' | null>(null);
 
   if (isCheckingSession) {
     return (
@@ -70,7 +72,24 @@ function MainApp() {
   if (!isAuthenticated) {
     return (
       <>
-        <AuthGatewayView />
+        {authTab ? (
+          <AuthGatewayView
+            key={authTab}
+            initialTab={authTab}
+            onBack={() => {
+              setAuthTab(null);
+              window.scrollTo(0, 0);
+            }}
+          />
+        ) : (
+          <LandingPage
+            onStart={(tab) => {
+              setAuthTab(tab);
+              window.scrollTo(0, 0);
+            }}
+            onOpenPrivacy={() => setShowPrivacyModal(true)}
+          />
+        )}
         <PrivacyPolicyModal
           isOpen={showPrivacyModal}
           onClose={() => setShowPrivacyModal(false)}

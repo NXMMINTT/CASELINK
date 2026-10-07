@@ -107,3 +107,46 @@
     cursor: pointer;
   }
 }
+
+/* Landing page (dark navy) */
+@layer components {
+  .font-display {
+    font-family: 'Prompt', var(--font-sans);
+  }
+
+  .font-brand {
+    font-family: 'Plus Jakarta Sans', var(--font-sans);
+  }
+
+  .landing-grid {
+    background-image:
+      linear-gradient(to right, rgba(79, 141, 253, 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(79, 141, 253, 0.05) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse at top, black 30%, transparent 75%);
+  }
+
+  .feature-card {
+    border-radius: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    background: linear-gradient(180deg, #0a1222 0%, #070b14 100%);
+    padding: 1.75rem;
+    transition: border-color 0.2s;
+  }
+
+  .feature-card:hover {
+    border-color: rgba(79, 141, 253, 0.3);
+  }
+
+  .feature-text {
+    margin-top: 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.65;
+    color: #7d8ba6;
+  }
+
+  .landing ::selection {
+    background: #1d56db;
+    color: #fff;
+  }
+}

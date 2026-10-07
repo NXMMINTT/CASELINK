@@ -13,12 +13,17 @@ import {
   Loader2,
 } from 'lucide-react';
 
-export const AuthGatewayView: React.FC = () => {
+interface AuthGatewayViewProps {
+  initialTab?: 'register' | 'login';
+  onBack?: () => void;
+}
+
+export const AuthGatewayView: React.FC<AuthGatewayViewProps> = ({ initialTab, onBack }) => {
   const { isFirstTimeUser, registerUser, loginUser, setShowPrivacyModal } = useApp();
 
   // First visit opens on "create account"; returning visitors land on "sign in".
   const [activeTab, setActiveTab] = useState<'register' | 'login'>(() =>
-    isFirstTimeUser ? 'register' : 'login'
+    initialTab ?? (isFirstTimeUser ? 'register' : 'login')
   );
 
   const [role, setRole] = useState<UserRole>('lawyer');
@@ -92,12 +97,18 @@ export const AuthGatewayView: React.FC = () => {
     <div className="min-h-screen bg-white text-slate-900 flex flex-col">
       <header className="border-b border-slate-200">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
+          <button
+            type="button"
+            onClick={onBack}
+            disabled={!onBack}
+            className="flex items-center gap-2.5"
+            title={onBack ? 'กลับหน้าแรก' : undefined}
+          >
             <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white">
               <Scale className="w-4 h-4" />
             </div>
             <span className="text-[15px] font-semibold tracking-tight">CASELINK</span>
-          </div>
+          </button>
           <button
             onClick={() => setShowPrivacyModal(true)}
             className="text-sm text-slate-500 hover:text-slate-900 transition"
