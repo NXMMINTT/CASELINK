@@ -118,36 +118,76 @@ Auto-layout ใช้การคำนวณตำแหน่งในโป�
 - ช่องแก้ไขโปรไฟล์และการแจ้งเตือนในหน้าตั้งค่ายังไม่บันทึกค่าถาวร
 - รูปตัวอย่างหรือรูปที่ใส่เป็น URL อาจโหลดจากเว็บไซต์ภายนอก แม้ฟังก์ชัน AI และ LINE ในเดโมจะไม่เรียก API ภายนอก
 
+## โหมด Prototype แบบมี Backend
+
+โปรเจ็คมีโครงสร้าง Backend สำหรับใช้งานจริงด้วย Node.js, Express, TypeScript และ MongoDB
+
+ตั้งค่าไฟล์ `.env` จาก `.env.example`:
+
+```env
+MONGODB_URI=mongodb+srv://USER:PASSWORD@cluster.mongodb.net/caselink
+JWT_SECRET=เปลี่ยนเป็นค่าสุ่มยาวอย่างน้อย 32 ตัวอักษร
+```
+
+Backend มี API สำหรับ:
+
+- สมัครสมาชิกและเข้าสู่ระบบด้วยรหัสผ่านที่ hash ด้วย bcrypt
+- เก็บ Session ใน HttpOnly Cookie
+- อ่านข้อมูลผู้ใช้ปัจจุบัน
+- สร้าง อ่าน แก้ไข และลบคดี
+- ตรวจสอบสิทธิ์เจ้าของคดีใน API
+
+โครงสร้างนี้ใช้แทนการเชื่อม MongoDB จาก Browser โดยตรง และยังคงโหมด Demo `localStorage` เดิมไว้ระหว่างการย้ายระบบ
+
+```text
+backend/src/
+  index.ts                  จุดเริ่ม Express (พอร์ต 8787)
+  db/mongodb.ts             การเชื่อมต่อ MongoDB
+  models/User.ts            User model
+  models/Case.ts            Case model
+  middleware/auth.ts        ตรวจสอบ HttpOnly session
+  routes/auth.ts            Auth API
+  routes/cases.ts           Case CRUD API
+  routes/ai.ts              AI endpoint ทดลอง (Gemini / rule-based)
+frontend/src/lib/api.ts     Typed client สำหรับเรียก Backend
+```
+
+คำสั่ง `npm run dev` จะเริ่ม Backend (Express, พอร์ต 8787) และ Frontend (Vite, พอร์ต 5173) พร้อมกัน โดย Vite ส่งต่อคำขอ `/api` ไปที่ Backend หากไม่ได้ตั้งค่า `MONGODB_URI` เซิร์ฟเวอร์ยังเริ่มได้ แต่ `/api/auth` และ `/api/cases` จะตอบ 503 ส่วน Auth ต้องตั้งค่า `JWT_SECRET` ด้วย
+
 การเก็บข้อมูลในเครื่องไม่ได้เป็นการรับรองความปลอดภัยหรือการปฏิบัติตาม PDPA เว็บรุ่นนี้ยังไม่มีระบบบัญชีและสิทธิ์เข้าถึงสำหรับใช้งานกับสำนวนจริง
 
 ## เทคโนโลยีและโครงสร้างโปรเจกต์
 
 - **Frontend:** React, TypeScript, Vite
 - **หน้าตาและไอคอน:** Tailwind CSS, Lucide React
-- **State และข้อมูลเดโม:** React Context, `localStorage`, ข้อมูลเริ่มต้นใน `src/mockData.ts`
+- **State และข้อมูลเดโม:** React Context, `localStorage`, ข้อมูลเริ่มต้นใน `frontend/src/mockData.ts`
+- **Backend Prototype:** Node.js, Express, TypeScript, MongoDB Atlas, Mongoose
+- **Authentication:** bcrypt และ HttpOnly Cookie ที่เซ็นด้วย JWT
 - **Development server:** Express และ `tsx`
-- **โค้ด API ฝั่งเซิร์ฟเวอร์:** `@google/genai` สำหรับ endpoint ทดลองใน `server.ts`
+- **โค้ด API ฝั่งเซิร์ฟเวอร์:** `@google/genai` สำหรับ endpoint ทดลองใน `backend/src/routes/ai.ts`
 - **การเผยแพร่:** GitHub Actions สร้าง `dist/` แล้วเผยแพร่บน GitHub Pages
 
 ไฟล์สำคัญ:
 
 ```text
-src/
+frontend/
+  index.html
+  vite.config.ts           การตั้งค่า build, relative base path และ proxy `/api`
+frontend/src/
   App.tsx                  หน้าหลัก การนำทาง และเลือกมุมมอง
   context/AppContext.tsx   ข้อมูลคดี บทบาท และการบันทึกในเบราว์เซอร์
   components/             หน้าคดี Mind Map Timeline Checklist แชท และ LINE
   utils/aiSimulator.ts     การแยกข้อความด้วยกฎในโหมดเดโม
   mockData.ts              ข้อมูลคดีตัวอย่าง
 docs/screenshots/         ภาพหน้าจอสำหรับ README
-server.ts                 Express/Vite และ endpoint AI ทดลอง
-vite.config.ts            การตั้งค่า build และ relative base path
+backend/src/              Express API (auth, cases, AI)
 .github/workflows/deploy.yml
                           Workflow เผยแพร่ GitHub Pages
 ```
 
 ### สถานะของ backend
 
-`server.ts` มี endpoint `/api/ai/structure-case` และ `/api/ai/post-case-analysis` ซึ่งมีโค้ดเรียก Gemini เมื่อกำหนด `GEMINI_API_KEY` และใช้ผลจากกฎหรือแม่แบบเมื่อไม่มี key หรือเรียก API ไม่สำเร็จ
+`backend/src/routes/ai.ts` มี endpoint `/api/ai/structure-case` และ `/api/ai/post-case-analysis` ซึ่งมีโค้ดเรียก Gemini เมื่อกำหนด `GEMINI_API_KEY` และใช้ผลจากกฎหรือแม่แบบเมื่อไม่มี key หรือเรียก API ไม่สำเร็จ
 
 Frontend ปัจจุบันใช้ตัวจำลองในเบราว์เซอร์และไม่ได้เรียก endpoint เหล่านี้ การ build สำหรับ GitHub Pages เผยแพร่เฉพาะ frontend จึงไม่ได้เปิดใช้งาน Express หรือ Gemini บนเว็บเดโม การเชื่อม backend และระบบยืนยันตัวตนยังต้องพัฒนาเพิ่มเติม
 
@@ -162,9 +202,9 @@ npm ci
 npm run dev
 ```
 
-เปิด `http://localhost:3000` ตามค่าพอร์ตเริ่มต้นของ `server.ts` หรือตามพอร์ตที่กำหนดผ่าน `PORT`
+เปิด `http://localhost:5173` (Frontend) ส่วน Backend อยู่ที่ `http://localhost:8787` เปลี่ยนพอร์ต Backend ได้ด้วย `BACKEND_PORT` หรือรันแยกด้วย `npm run dev:frontend` / `npm run dev:backend`
 
-การทดลองฟีเจอร์บนหน้าเว็บไม่ต้องใช้ Gemini API key หรือ LINE Token หากต้องพัฒนา endpoint Gemini ใน `server.ts` จึงค่อยกำหนด `GEMINI_API_KEY` ฝั่งเซิร์ฟเวอร์ ไม่ควรนำ key ไปใส่ใน frontend
+การทดลองฟีเจอร์บนหน้าเว็บไม่ต้องใช้ Gemini API key หรือ LINE Token หากต้องพัฒนา endpoint Gemini ใน `backend/src/routes/ai.ts` จึงค่อยกำหนด `GEMINI_API_KEY` ฝั่งเซิร์ฟเวอร์ ไม่ควรนำ key ไปใส่ใน frontend
 
 ### Build และเปิดพรีวิว
 
